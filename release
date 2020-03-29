@@ -1,5 +1,3 @@
 #!/bin/bash -ex
 
 cp -l .apt/usr/bin/gnuplot-qt .apt/usr/bin/gnuplot
-
-./update
