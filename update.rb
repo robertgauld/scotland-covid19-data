@@ -15,6 +15,17 @@ def update
   end
   $current_data_sha = github_data_sha
 
+  $logger.info 'Downloading new data'
+  [HEALTH_BOARD_POPULATIONS_FILE, HEALTH_BOARD_CASES_FILE, HEALTH_BOARD_CASES_FILE].each do |file|
+    url = "https://raw.githubusercontent.com/watty62/Scot_covid19/master/#{file}"
+    file = File.join(INPUT_DIR, file)
+    $logger.debug "#{url} => #{file}"
+    src = URI(url).open
+    File.open(file, 'w') do |dst|
+      IO.copy_stream src, dst
+    end
+  end
+
   $logger.info "Reading health board data (#{HEALTH_BOARD_POPULATIONS_FILE})."
   health_boards = []
   health_board_scale = { 'Grand Total' => 0 }
