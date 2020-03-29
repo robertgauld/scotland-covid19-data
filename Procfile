@@ -1,3 +1,1 @@
-web: bundle exec rackup --port $PORT
-update: ./update
-release: ./release
+web: bundle exec rackup --port $PORT --env ${RACK_ENV:development}

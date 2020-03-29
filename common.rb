@@ -24,11 +24,15 @@ $logger.formatter = proc do |severity, datetime, progname, message|
   if Thread.current.thread_variable_get(:logger_label)
     message = "#{Thread.current.thread_variable_get(:logger_label)} - #{message}"
   end
-  "#{datetime} #{severity} #{progname}: #{message}\n"
+  "#{datetime} #{severity} #{progname}: #{message.strip}\n"
 end
 $logger.level = ENV['LOG_LEVEL']&.to_i || Logger::DEBUG
 STDOUT.sync = true
 
 $current_data_sha = ''
+
+if ENV['DYNO'] && !File.exist?('/app/.apt/usr/bin/gnuplot')
+  FileUtils.link '/app/.apt/usr/bin/gnuplot-qt', '/app/.apt/usr/bin/gnuplot'
+end
 
 require_relative 'update'
