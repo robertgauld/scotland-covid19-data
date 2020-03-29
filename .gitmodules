@@ -1,0 +1,3 @@
+[submodule "input"]
+	path = input
+	url = https://github.com/watty62/Scot_covid19.git
