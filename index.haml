@@ -8,7 +8,10 @@
       %a{href: 'https://github.com/watty62'} watty62
       for collecting and preprocessing the data at
       %a{href: 'https://github.com/watty62/Scot_covid19'} https://github.com/watty62/Scot_covid19
-    %p Data last updated #{upto.strftime('%A %-d %B %Y')}.
+    %p
+      On start up and every hour thereafter this site checks for new data and if there is it regenerates itself.
+      %br
+      Data upto #{upto.strftime('%A %-d %B %Y')} is currently available and displayed.
 
     %h2 Whole of Scotland
     #scotland

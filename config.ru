@@ -34,15 +34,13 @@ $logger.info 'Configuration complete'
 use Rack::Static,
   urls: ['/'],
   root: 'output',
-  index: 'index.html'
+  index: 'index.html',
+  header_rules: [[:all, {'Cache-Control' => 'public, max-age=300'}]]
 
 run lambda { |env|
   [
     404,
-    {
-      'Content-Type'  => 'text/plain',
-      'Cache-Control' => 'public, max-age=86400'
-    },
+    {'Content-Type'  => 'text/plain'},
     'Not found!'
   ]
 }
