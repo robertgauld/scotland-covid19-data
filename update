@@ -1,0 +1,20 @@
+#!/bin/bash -ex
+
+if [ -z ${DYNO+x} ]; then
+  # Running locally
+  cd input
+  git pull
+  cd ..
+  git add input
+  bundle exec process
+  git add output
+  git commit -m 'Updated data'
+  git push heroku
+
+else
+  # Running on Heroku
+  wget --output-document=input/data/processed/HB_Populations.csv https://raw.githubusercontent.com/watty62/Scot_covid19/master/data/processed/HB_Populations.csv
+  wget --output-document=input/data/processed/regional_cases.csv https://raw.githubusercontent.com/watty62/Scot_covid19/master/data/processed/regional_cases.csv
+  wget --output-document=input/data/processed/regional_deaths.csv https://raw.githubusercontent.com/watty62/Scot_covid19/master/data/processed/regional_deaths.csv
+  bundle exec process
+fi

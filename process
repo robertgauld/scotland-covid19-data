@@ -270,3 +270,10 @@ health_boards.each do |health_board|
     end
   end
 end
+
+$logger.info 'Updating index file'
+File.write(
+  File.join(OUTPUT_DIR, 'index.html'),
+  Haml::Engine.new(File.read(File.join(__dir__, 'index.haml')))
+              .render(self, {numbers_per: NUMBERS_PER, upto: cases.keys.last, health_boards: health_boards})
+)
