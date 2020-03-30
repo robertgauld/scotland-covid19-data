@@ -10,6 +10,7 @@ module Make
       intensive_care = ScotlandCovid19Data.intensive_care
       deceased = ScotlandCovid19Data.deceased
       tests = ScotlandCovid19Data.tests
+      uk = UkCovid19Data.uk
 
       data = CSV::Table.new([], headers: ['Date', *health_boards, 'Grand Total'])  
       cases.keys.sort.each do |date|
@@ -36,6 +37,18 @@ module Make
         data.push record.values_at('Date', 'Today Positive', 'Today Negative', 'Total Positive', 'Total Negative')
       end
       File.write(File.join(PUBLIC_DIR, 'tests.csv'), data.to_csv)
+
+      data = CSV::Table.new([], headers: ['Date', 'Cases', 'Deaths', 'Cases Ratio', 'Deaths Ratio'])
+      cases.keys.sort.each do |date|
+        data.push [
+          date,
+          cases.dig(date, 'Grand Total'),
+          deaths.dig(date, 'Grand Total'),
+          cases.dig(date, 'Grand Total') && uk.dig(date, :confirmed_cases) ? cases.dig(date, 'Grand Total') / uk.dig(date, :confirmed_cases) : nil,
+          deaths.dig(date, 'Grand Total') && uk.dig(date, :deaths) ? deaths.dig(date, 'Grand Total') / uk.dig(date, :deaths) : nil
+        ]
+      end
+      File.write(File.join(PUBLIC_DIR, "scotland_per_#{NUMBERS_PER}.csv"), data.to_csv)
     end
 
     def self.health_board(name)

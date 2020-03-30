@@ -238,6 +238,67 @@ module Make
           }
         end
       end
+
+      Gnuplot.open do |gp|
+        Gnuplot::Plot.new(gp) do |plot|
+          uk_data = UkCovid19Data.uk
+          scotland_data = UkCovid19Data.scotland
+          data = Array.new(3) { [] }
+          scotland_data.keys.sort.each do |date|
+            next unless uk_data[date]
+
+            data[0].push date
+            data[1].push scotland_data.dig(date, :confirmed_cases) / uk_data.dig(date, :confirmed_cases)
+            data[2].push scotland_data.dig(date, :deaths) / uk_data.dig(date, :deaths)
+          end
+
+          case target
+          when :file
+            plot.terminal "pngcairo size #{PLOT_SIZE}"
+            plot.output File.join(PUBLIC_DIR, 'scotland_vs_uk.png')
+          when :screen
+            plot.terminal "wxt size #{PLOT_SIZE} persist"
+          else
+            fail "#{target.inspect} is not a valid target."
+          end
+
+          plot.xdata 'time'
+          plot.timefmt '\'%Y-%m-%d\''
+
+          plot.title 'Scotland vs UK'
+
+          plot.key 'outside center bottom horizontal'
+
+          plot.format 'x \'%d/%m/%y\''
+          plot.xrange "['#{data[0].first.strftime('%Y-%m-01')}':'#{Date.parse(data[0].last.strftime('%Y-%m-01')).next_month.prev_day}']"
+
+          plot.yrange '[0:]'
+          plot.ylabel "Scotland per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')} ÷ UK per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')}"
+
+          plot.grid
+
+          # plot 1 lw 1 lt rgb '#88ff88',
+          plot.add_data Gnuplot::DataSet.new('1') { |ds|
+            ds.linewidth = 1
+            ds.title = ''
+          }
+
+          plot.add_data Gnuplot::DataSet.new([data[0], data[1]]) { |ds|
+            ds.using = '1:2'
+            ds.with = 'line'
+            ds.title = 'Cases'
+            ds.linewidth = 2
+          }
+
+          plot.add_data Gnuplot::DataSet.new([data[0], data[2]]) { |ds|
+            ds.using = '1:2'
+            ds.with = 'line'
+            ds.title = 'Deaths'
+            ds.linewidth = 2
+          }
+        end
+      end
+
     end
 
     def self.health_board(name, target: :file)
@@ -279,7 +340,7 @@ module Make
           plot.key 'outside center bottom horizontal'
 
           plot.format 'x \'%d/%m/%y\''
-          plot.xrange "['#{deaths.keys.first.strftime('%Y-%m-01')}':'#{Date.parse(deaths.keys.last.strftime('%Y-%m-01')).next_month.prev_day}']"
+          plot.xrange "['#{data[0].first.strftime('%Y-%m-01')}':'#{Date.parse(data[0].last.strftime('%Y-%m-01')).next_month.prev_day}']"
 
           plot.logscale 'y 10'
           plot.yrange '[0:]'
@@ -335,10 +396,10 @@ module Make
           plot.key 'outside center bottom horizontal'
 
           plot.format 'x \'%d/%m/%y\''
-          plot.xrange "['#{deaths.keys.first.strftime('%Y-%m-01')}':'#{Date.parse(deaths.keys.last.strftime('%Y-%m-01')).next_month.prev_day}']"
+          plot.xrange "['#{data[0].first.strftime('%Y-%m-01')}':'#{Date.parse(data[0].last.strftime('%Y-%m-01')).next_month.prev_day}']"
 
           plot.yrange '[0:]'
-          plot.ylabel "#{name} per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')} ÷ National per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')}"
+          plot.ylabel "#{name} per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')} ÷ Scotland per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')}"
 
           plot.grid
 

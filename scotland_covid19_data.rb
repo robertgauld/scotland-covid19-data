@@ -72,7 +72,7 @@ class ScotlandCovid19Data
       end
     end
 
-    @@current_git_sha = github_latest_commit_sha
+    @@current_git_sha = github_latest_commit_sha unless only
   end
 
   def self.load
@@ -189,7 +189,7 @@ class ScotlandCovid19Data
     end
 
     def github_latest_commit_sha
-      JSON.parse(URI('https://api.github.com/repos/watty62/Scot_covid19/commits/master').open.string)['sha']
+      JSON.parse(URI('https://api.github.com/repos/watty62/Scot_covid19/commits/master').read)['sha']
     end
   end
 end

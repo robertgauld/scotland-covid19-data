@@ -43,6 +43,8 @@ end
 
 def update
   ScotlandCovid19Data.update
+  UkCovid19Data.update
+
   Make::Csv.scotland
   Make::Plot.scotland
 

@@ -5,21 +5,40 @@
   %body
     %h1 Scotland's Covid-19 Figures
     %p
-      Thanks to
-      %a{href: 'https://github.com/watty62'} watty62
-      for collecting and preprocessing the data at
-      %a{href: 'https://github.com/watty62/Scot_covid19'} https://github.com/watty62/Scot_covid19
-    %p
       On start up and every hour thereafter this site checks for new data and if 
       new data is available it regenerates itself.
+    %p
+      Thanks to
+      %a{href: 'https://github.com/watty62'} watty62
+      for collecting and preprocessing the Scotland data at
+      %a{href: 'https://github.com/watty62/Scot_covid19'} https://github.com/watty62/Scot_covid19
+      Data upto #{upto_scotland.strftime('%A %-d %B %Y')} is currently available and displayed.
+      - if updating
+        %span.highlight
+          The data is currently being updated.
       %br
-      Data upto #{upto.strftime('%A %-d %B %Y')} is currently available and displayed.
+      Thanks to
+      %a{href: 'https://github.com/tomwhite'} tomwhite
+      for collecting and preprocessing the UK data at
+      %a{href: 'https://github.com/tomwhite/covid-19-uk-data'} https://github.com/tomwhite/covid-19-uk-data
+      Data upto #{upto_uk.strftime('%A %-d %B %Y')} is currently available and displayed.
       - if updating
         %span.highlight
           The data is currently being updated.
     %p
       Two of the graphs below are absent as the corresponding health board has reported 0 cases.
 
+    #links{style: 'padding-left: 15%; padding-right: 15%;'}
+      %div{style: 'display: inline-block; min-width: 16em;'}
+        %a{style: 'margin-left: 17.2em; margin-right: 1em;', href: '#scotland'} Scotland
+      %br
+      %br
+      - health_boards.each do |health_board|
+        - health_board_link = health_board.downcase.gsub(' ', '_')
+        %div{style: 'display: inline-block; min-width: 16em;'}
+          %a{style: 'margin-left: 1em; margin-right: 1em;', href: "##{health_board_link}"}=health_board
+
+    %a{name: 'scotland'}
     %h2 Whole of Scotland
     #scotland
       .chart
@@ -47,15 +66,13 @@
           %img{src: '/icu_deceased.png', width: 450, height: 300}
         %br
         %a{href: '/icu_deceased.csv'} Download data
+      .chart
+        %a{href: '/scotland_vs_uk.png'}
+          %img{src: '/scotland_vs_uk.png', width: 450, height: 300}
+        %br
+        %a{href: '/scotland_vs_uk'} Download data
 
     %hr{width: '50%', style: 'margin-top: 3em;'}
-
-    #health_boards_links{style: 'padding-left: 33%;'}
-      %ul
-        - health_boards.each do |health_board|
-          - health_board_link = health_board.downcase.gsub(' ', '_')
-          %li
-            %a{style: 'margin-left: 10px; margin-right: 10px;', href: "##{health_board_link}"}=health_board
 
     - health_boards.each do |health_board|
       - health_board_link = health_board.downcase.gsub(' ', '_')
@@ -66,7 +83,8 @@
         .chart
           %a{href: "/#{health_board_link}_per_#{numbers_per}.png"}
             %img{src: "/#{health_board_link}_per_#{numbers_per}.png", width: 450, height: 300}
-          %br
         .chart
           %a{href: "/#{health_board_link}_vs_scotland.png"}
             %img{src: "/#{health_board_link}_vs_scotland.png", width: 450, height: 300}
+
+    %hr{width: '50%', style: 'margin-top: 3em;'}
