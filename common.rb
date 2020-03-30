@@ -8,6 +8,8 @@ require 'open-uri'
 
 Bundler.require
 
+require 'rollbar/middleware/rack'
+
 NUMBERS_PER = 100_000
 PLOT_SIZE = '900,600'
 
