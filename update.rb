@@ -16,8 +16,8 @@ def update
   $current_data_sha = github_data_sha
 
   $logger.info 'Downloading new data'
-  [HEALTH_BOARD_POPULATIONS_FILE, HEALTH_BOARD_CASES_FILE, HEALTH_BOARD_CASES_FILE].each do |file|
-    url = "https://raw.githubusercontent.com/watty62/Scot_covid19/master/#{file}"
+  [HEALTH_BOARD_POPULATIONS_FILE, HEALTH_BOARD_CASES_FILE, HEALTH_BOARD_DEATHS_FILE].each do |file|
+    url = "https://raw.githubusercontent.com/watty62/Scot_covid19/master/data/processed/#{file}"
     file = File.join(INPUT_DIR, file)
     $logger.debug "#{url} => #{file}"
     src = URI(url).open

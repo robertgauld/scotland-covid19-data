@@ -13,9 +13,9 @@ PLOT_SIZE = '900,600'
 
 INPUT_DIR = File.join(__dir__, 'input')
 OUTPUT_DIR = File.join(__dir__, 'output')
-HEALTH_BOARD_POPULATIONS_FILE = File.join('data', 'processed', 'HB_Populations.csv')
-HEALTH_BOARD_CASES_FILE = File.join('data', 'processed', 'regional_cases.csv')
-HEALTH_BOARD_DEATHS_FILE = File.join('data', 'processed', 'regional_deaths.csv')
+HEALTH_BOARD_POPULATIONS_FILE = 'HB_Populations.csv'
+HEALTH_BOARD_CASES_FILE = 'regional_cases.csv'
+HEALTH_BOARD_DEATHS_FILE = 'regional_deaths.csv'
 
 $VERBOSE = false
 
