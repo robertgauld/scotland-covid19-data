@@ -2,3 +2,4 @@ data/*
 !data/.gitkeep
 public/*
 !public/.gitkeep
+!public/index.css

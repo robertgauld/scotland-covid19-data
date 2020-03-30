@@ -4,6 +4,17 @@ class ScotlandCovid19Data
   HEALTH_BOARD_POPULATIONS_FILE = 'HB_Populations.csv'
   HEALTH_BOARD_CASES_FILE = 'regional_cases.csv'
   HEALTH_BOARD_DEATHS_FILE = 'regional_deaths.csv'
+  INTENSIVE_CARE_FILE = 'intensive_care.csv'
+  DECEASED_FILE = 'scot_test_positive_deceased.csv'
+  TESTS_FILE = 'scot_tests.csv'
+  FILES = [
+    HEALTH_BOARD_POPULATIONS_FILE,
+    HEALTH_BOARD_CASES_FILE,
+    HEALTH_BOARD_DEATHS_FILE,
+    INTENSIVE_CARE_FILE,
+    DECEASED_FILE,
+    TESTS_FILE
+  ].freeze
 
   @@current_git_sha = ''
 
@@ -27,11 +38,26 @@ class ScotlandCovid19Data
     @@deaths
   end
 
+  def self.intensive_care
+    load_intensive_care unless defined?(@@intensive_care)
+    @@intensive_care
+  end
+
+  def self.deceased
+    load_deceased unless defined?(@@deceased)
+    @@deceased
+  end
+
+  def self.tests
+    load_tests unless defined?(@@tests)
+    @@tests
+  end
+
   def self.download(force: false, only: nil)
     $logger.info (force ? 'Downloading all' : 'Downloading new') + \
                  (only ? " #{only.inspect} data." : ' data.')
     force ||= update_available?
-    files = only ? [*only] : [HEALTH_BOARD_POPULATIONS_FILE, HEALTH_BOARD_CASES_FILE, HEALTH_BOARD_DEATHS_FILE]
+    files = only ? [*only] : FILES
 
     files.each do |file|
       url = "https://raw.githubusercontent.com/watty62/Scot_covid19/master/data/processed/#{file}"
@@ -53,6 +79,9 @@ class ScotlandCovid19Data
     load_health_boards
     load_cases
     load_deaths
+    load_intensive_care
+    load_deceased
+    load_tests
   end
 
   def self.update
@@ -101,8 +130,8 @@ class ScotlandCovid19Data
       number_converter = ->(value, field) { !field.header.eql?('Date') ? value.eql?('X') ? nil : value.to_i / health_board_scale.fetch(field.header) : value }
 
       @@cases = CSV.read(File.join(DATA_DIR, HEALTH_BOARD_CASES_FILE), headers: true, converters: [number_converter, date_converter])
-                 .map { |record| [record['Date'], [*health_boards, 'Grand Total'].zip(record.values_at(*health_boards, 'Grand Total')).to_h] }
-                 .to_h
+                   .map { |record| [record['Date'], [*health_boards, 'Grand Total'].zip(record.values_at(*health_boards, 'Grand Total')).to_h] }
+                   .to_h
       $logger.debug "Read cases data for #{@@cases.keys.sort.values_at(0, -1).map(&:to_s).join(' to ')}."
     end
 
@@ -116,9 +145,47 @@ class ScotlandCovid19Data
       number_converter = ->(value, field) { !field.header.eql?('Date') ? value.eql?('X') ? nil : value.to_i / health_board_scale.fetch(field.header) : value }
 
       @@deaths = CSV.read(File.join(DATA_DIR, HEALTH_BOARD_DEATHS_FILE), headers: true, converters: [number_converter, date_converter])
-                  .map { |record| [record['Date'], [*health_boards, 'Grand Total'].zip(record.values_at(*health_boards, 'Grand Total')).to_h] }
-                  .to_h
-      $logger.debug "Read deaths data for #{@@deaths.keys.sort.values_at(0, -1).map(&:to_s).join(' to ')}."    
+                    .map { |record| [record['Date'], [*health_boards, 'Grand Total'].zip(record.values_at(*health_boards, 'Grand Total')).to_h] }
+                    .to_h
+      $logger.debug "Read deaths data for #{@@deaths.keys.sort.values_at(0, -1).map(&:to_s).join(' to ')}."
+    end
+
+    def load_intensive_care
+      $logger.info "Reading intensive care data (#{INTENSIVE_CARE_FILE})."
+      unless File.exist?(File.join(DATA_DIR, INTENSIVE_CARE_FILE))
+        download(only: INTENSIVE_CARE_FILE)
+      end
+
+      @@intensive_care = CSV.read(File.join(DATA_DIR, INTENSIVE_CARE_FILE), headers: false)
+                            .map { |record| [Date.parse(record[0]), record[1]&.to_i] }
+                            .to_h
+      $logger.debug "Read intensive care data for #{@@intensive_care.keys.sort.values_at(0, -1).map(&:to_s).join(' to ')}."
+    end
+
+    def load_deceased
+      $logger.info "Reading deceased data (#{DECEASED_FILE})."
+      unless File.exist?(File.join(DATA_DIR, DECEASED_FILE))
+        download(only: DECEASED_FILE)
+      end
+
+      date_converter = ->(value, field) { field.header.eql?('Date') ? Date.parse(value) : value }
+      @@deceased = CSV.read(File.join(DATA_DIR, DECEASED_FILE), headers: true, converters: [:numeric, date_converter])
+                      .map { |record| [record['Date'], record['deceased']] }
+                      .to_h
+      $logger.debug "Read deceased data for #{@@deceased.keys.sort.values_at(0, -1).map(&:to_s).join(' to ')}."    
+    end
+
+    def load_tests
+      $logger.info "Reading tests data (#{TESTS_FILE})."
+      unless File.exist?(File.join(DATA_DIR, TESTS_FILE))
+        download(only: TESTS_FILE)
+      end
+
+      date_converter = ->(value, field) { field.header.eql?('Date') ? Date.parse(value) : value }
+      @@tests = CSV.read(File.join(DATA_DIR, TESTS_FILE), headers: true, converters: [:numeric, date_converter])
+                   .map { |record| [record['Date'], record.to_h] }
+                   .to_h
+      $logger.debug "Read tests data for #{@@tests.keys.sort.values_at(0, -1).map(&:to_s).join(' to ')}."    
     end
 
     def github_latest_commit_sha

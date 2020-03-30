@@ -1,8 +1,9 @@
 %html
   %head
     %title Scotland's Covid-19 Figures
+    %link{rel: 'stylesheet', href:'index.css'}
   %body
-    %h1{style: 'text-align: center;'} Scotland's Covid-19 Figures
+    %h1 Scotland's Covid-19 Figures
     %p
       Thanks to
       %a{href: 'https://github.com/watty62'} watty62
@@ -14,23 +15,38 @@
       %br
       Data upto #{upto.strftime('%A %-d %B %Y')} is currently available and displayed.
       - if updating
-        %span{style: 'background: yellow; font-style: italic; padding-left: 0.5em; padding-right: 0.5em'}
+        %span.highlight
           The data is currently being updated.
     %p
       Two of the graphs below are absent as the corresponding health board has reported 0 cases.
 
     %h2 Whole of Scotland
     #scotland
-      .chart{style: 'width: 45%; text-align: center; display: inline-block;'}
+      .chart
+        %a{href: '/daily_tests.png'}
+          %img{src: '/daily_tests.png', width: 450, height: 300}
+        %br
+        %a{href: '/tests.csv'} Download data
+      .chart
+        %a{href: '/cumulative_tests.png'}
+          %img{src: '/cumulative_tests.png', width: 450, height: 300}
+        %br
+        %a{href: '/tests.csv'} Download data
+      .chart
         %a{href: "/cases_per_#{numbers_per}.png"}
           %img{src: "/cases_per_#{numbers_per}.png", width: 450, height: 300}
         %br
         %a{href: "/cases_per_#{numbers_per}.csv"} Download data
-      .chart{style: 'width: 45%; text-align: center; display: inline-block;'}
+      .chart
         %a{href: "/deaths_per_#{numbers_per}.png"}
           %img{src: "/deaths_per_#{numbers_per}.png", width: 450, height: 300}
         %br
         %a{href: "/deaths_per_#{numbers_per}.csv"} Download data
+      .chart
+        %a{href: '/icu_deceased.png'}
+          %img{src: '/icu_deceased.png', width: 450, height: 300}
+        %br
+        %a{href: '/icu_deceased.csv'} Download data
 
     %hr{width: '50%', style: 'margin-top: 3em;'}
 
@@ -47,10 +63,10 @@
       %h2=health_board
       %a{href: "/#{health_board_link}_per_#{numbers_per}.csv"} Download data
       #scotland{class: 'health_board_link'}
-        .chart{style: 'width: 45%; text-align: center; display: inline-block;'}
+        .chart
           %a{href: "/#{health_board_link}_per_#{numbers_per}.png"}
             %img{src: "/#{health_board_link}_per_#{numbers_per}.png", width: 450, height: 300}
           %br
-        .chart{style: 'width: 45%; text-align: center; display: inline-block;'}
+        .chart
           %a{href: "/#{health_board_link}_vs_scotland.png"}
             %img{src: "/#{health_board_link}_vs_scotland.png", width: 450, height: 300}

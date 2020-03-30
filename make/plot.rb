@@ -29,7 +29,7 @@ module Make
           plot.key 'outside center bottom horizontal'
 
           plot.format 'x \'%d/%m/%y\''
-          plot.xrange "['#{cases.keys.first.strftime('%Y-%m-01')}':'#{Date.parse(cases.keys.first.strftime('%Y-%m-01')).next_month.prev_day}']"
+          plot.xrange "['#{cases.keys.first.strftime('%Y-%m-01')}':'#{Date.parse(cases.keys.last.strftime('%Y-%m-01')).next_month.prev_day}']"
 
           plot.logscale 'y 10'
           plot.yrange '[0:]'
@@ -74,7 +74,7 @@ module Make
           plot.key 'outside center bottom horizontal'
 
           plot.format 'x \'%d/%m/%y\''
-          plot.xrange "['#{deaths.keys.first.strftime('%Y-%m-01')}':'#{Date.parse(deaths.keys.first.strftime('%Y-%m-01')).next_month.prev_day}']"
+          plot.xrange "['#{deaths.keys.first.strftime('%Y-%m-01')}':'#{Date.parse(deaths.keys.last.strftime('%Y-%m-01')).next_month.prev_day}']"
 
           plot.logscale 'y 10'
           plot.yrange '[0:]'
@@ -86,13 +86,156 @@ module Make
                        .map { |key, value| [key.to_s, *value.sort_by(&:first).map(&:last)] }
                        .transpose
 
-                       data[1..-2].each.with_index do |this_data, index|
+          data[1..-2].each.with_index do |this_data, index|
             plot.add_data Gnuplot::DataSet.new([data[0], this_data]) { |ds|
               ds.using = '1:2'
               ds.with = 'line'
               ds.title = health_boards[index]
             }
           end
+        end
+      end
+
+      Gnuplot.open do |gp|
+        Gnuplot::Plot.new(gp) do |plot|
+          deceased = ScotlandCovid19Data.deceased
+          intensive_care = ScotlandCovid19Data.intensive_care
+          earliest_date = [deceased.keys.min, intensive_care.keys.min].min
+          latest_date = [deceased.keys.max, intensive_care.keys.max].max
+
+          case target
+          when :file
+            plot.terminal "pngcairo size #{PLOT_SIZE}"
+            plot.output File.join(PUBLIC_DIR, 'icu_deceased.png')
+          when :screen
+            plot.terminal "wxt size #{PLOT_SIZE} persist"
+          else
+            fail "#{target.inspect} is not a valid target."
+          end
+
+          plot.xdata 'time'
+          plot.timefmt '\'%Y-%m-%d\''
+
+          plot.title 'Scottish COVID-19 Cumulative Deceased and Intensive Care Use'
+
+          plot.key 'outside center bottom horizontal'
+
+          plot.format 'x \'%d/%m/%y\''
+          plot.xrange "['#{earliest_date.strftime('%Y-%m-01')}':'#{Date.parse(latest_date.strftime('%Y-%m-01')).next_month.prev_day}']"
+
+          plot.logscale 'y 10'
+          plot.yrange '[0:]'
+
+          plot.grid
+
+          data = (earliest_date..latest_date).map { |date| [date, intensive_care[date], deceased[date]] }
+                                             .transpose
+
+          plot.add_data Gnuplot::DataSet.new([data[0], data[1]]) { |ds|
+            ds.using = '1:2'
+            ds.with = 'line'
+            ds.title = 'Patients in intensive care'
+          }
+
+          plot.add_data Gnuplot::DataSet.new([data[0], data[2]]) { |ds|
+            ds.using = '1:2'
+            ds.with = 'line'
+            ds.title = 'Cumulative deceased'
+          }
+        end
+      end
+
+      Gnuplot.open do |gp|
+        Gnuplot::Plot.new(gp) do |plot|
+          tests = ScotlandCovid19Data.tests
+
+          case target
+          when :file
+            plot.terminal "pngcairo size #{PLOT_SIZE}"
+            plot.output File.join(PUBLIC_DIR, 'cumulative_tests.png')
+          when :screen
+            plot.terminal "wxt size #{PLOT_SIZE} persist"
+          else
+            fail "#{target.inspect} is not a valid target."
+          end
+
+          plot.xdata 'time'
+          plot.timefmt '\'%Y-%m-%d\''
+
+          plot.title 'Scottish COVID-19 Cumulative Tests'
+
+          plot.key 'outside center bottom horizontal'
+
+          plot.format 'x \'%d/%m/%y\''
+          plot.xrange "['#{tests.keys.first.strftime('%Y-%m-01')}':'#{Date.parse(tests.keys.last.strftime('%Y-%m-01')).next_month.prev_day}']"
+
+          plot.yrange '[0:]'
+
+          plot.grid
+
+          data = tests.values
+                      .sort_by { |record| record['Date'] }
+                      .map { |record| [record['Date'], record['Total Negative'], record['Total Positive'] + record['Total Negative']] }
+                      .transpose
+
+          plot.add_data Gnuplot::DataSet.new([data[0], data[2]]) { |ds|
+            ds.using = '1:2'
+            ds.with = 'filledcurve x1'
+            ds.title = 'Positive'
+          }
+
+          plot.add_data Gnuplot::DataSet.new([data[0], data[1]]) { |ds|
+            ds.using = '1:2'
+            ds.with = 'filledcurve x1'
+            ds.title = 'Negative'
+          }
+        end
+      end
+
+      Gnuplot.open do |gp|
+        Gnuplot::Plot.new(gp) do |plot|
+          tests = ScotlandCovid19Data.tests
+
+          case target
+          when :file
+            plot.terminal "pngcairo size #{PLOT_SIZE}"
+            plot.output File.join(PUBLIC_DIR, 'daily_tests.png')
+          when :screen
+            plot.terminal "wxt size #{PLOT_SIZE} persist"
+          else
+            fail "#{target.inspect} is not a valid target."
+          end
+
+          plot.xdata 'time'
+          plot.timefmt '\'%Y-%m-%d\''
+
+          plot.title 'Scottish COVID-19 Daily Tests'
+
+          plot.key 'outside center bottom horizontal'
+
+          plot.format 'x \'%d/%m/%y\''
+          plot.xrange "['#{tests.keys.first.strftime('%Y-%m-01')}':'#{Date.parse(tests.keys.last.strftime('%Y-%m-01')).next_month.prev_day}']"
+
+          plot.yrange '[0:]'
+
+          plot.grid
+
+          data = tests.values
+                      .sort_by { |record| record['Date'] }
+                      .map { |record| [record['Date'], record['Today Negative'], record['Today Positive']] }
+                      .transpose
+
+          plot.add_data Gnuplot::DataSet.new([data[0], data[2]]) { |ds|
+            ds.using = '1:2'
+            ds.with = 'line'
+            ds.title = 'Positive'
+          }
+
+          plot.add_data Gnuplot::DataSet.new([data[0], data[1]]) { |ds|
+            ds.using = '1:2'
+            ds.with = 'line'
+            ds.title = 'Negative'
+          }
         end
       end
     end
@@ -136,7 +279,7 @@ module Make
           plot.key 'outside center bottom horizontal'
 
           plot.format 'x \'%d/%m/%y\''
-          plot.xrange "['#{deaths.keys.first.strftime('%Y-%m-01')}':'#{Date.parse(deaths.keys.first.strftime('%Y-%m-01')).next_month.prev_day}']"
+          plot.xrange "['#{deaths.keys.first.strftime('%Y-%m-01')}':'#{Date.parse(deaths.keys.last.strftime('%Y-%m-01')).next_month.prev_day}']"
 
           plot.logscale 'y 10'
           plot.yrange '[0:]'
@@ -192,7 +335,7 @@ module Make
           plot.key 'outside center bottom horizontal'
 
           plot.format 'x \'%d/%m/%y\''
-          plot.xrange "['#{deaths.keys.first.strftime('%Y-%m-01')}':'#{Date.parse(deaths.keys.first.strftime('%Y-%m-01')).next_month.prev_day}']"
+          plot.xrange "['#{deaths.keys.first.strftime('%Y-%m-01')}':'#{Date.parse(deaths.keys.last.strftime('%Y-%m-01')).next_month.prev_day}']"
 
           plot.yrange '[0:]'
           plot.ylabel "#{name} per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')} ÷ National per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')}"

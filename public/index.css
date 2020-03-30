@@ -1,0 +1,16 @@
+h1 {
+  text-align: center;
+}
+
+span.highlight {
+  background:  yellow;
+  font-style:    italic;
+  padding-left:  0.5em;
+  padding-right: 0.5em
+}
+
+div.chart {
+  width:      45%;
+  text-align: center;
+  display:    inline-block;
+}
