@@ -51,6 +51,4 @@ def update
     Make::Plot.health_board health_board
     Make::Plot.health_board_comparison health_board
   end
-
-  Make::Html.index(save: true)
 end

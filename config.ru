@@ -27,7 +27,7 @@ def $scheduler.on_error(job, error)
   )
 end
 
-$scheduler.every(3_600, overlap: false, timeout: 120) do
+$update_job = $scheduler.schedule_every(3_600, overlap: false, timeout: 120) do
   Thread.current.thread_variable_set(:logger_label, 'Background update')
   update
 end
@@ -56,6 +56,7 @@ end
 $logger.info 'Configuration complete'
 use Middleware::ErrorLogger
 use Rollbar::Middleware::Rack
+use Middleware::PageMaker
 
 use Rack::Static,
   urls: ['/'],

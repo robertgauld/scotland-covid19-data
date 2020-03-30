@@ -10,6 +10,7 @@ module Make
       data = {
         numbers_per: NUMBERS_PER,
         upto: ScotlandCovid19Data.cases.keys.last,
+        updating: $update_job&.running?,
         health_boards: ScotlandCovid19Data.health_boards
       }
 

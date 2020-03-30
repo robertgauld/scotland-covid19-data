@@ -13,6 +13,9 @@
       new data is available it regenerates itself.
       %br
       Data upto #{upto.strftime('%A %-d %B %Y')} is currently available and displayed.
+      - if updating
+        %span{style: 'background: yellow; font-style: italic; padding-left: 0.5em; padding-right: 0.5em'}
+          The data is currently being updated.
     %p
       Two of the graphs below are absent as the corresponding health board has reported 0 cases.
 
