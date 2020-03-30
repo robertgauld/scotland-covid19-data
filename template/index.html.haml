@@ -5,17 +5,16 @@
   %body
     %h1 Scotland's Covid-19 Figures
     %p
-      On start up and every hour thereafter this site checks for new data and if 
-      new data is available it regenerates itself.
+      This site hastily throuwn together by
+      %a{href: 'https://twitter.com/robertgauld'}@RobertGauld
+      What started as an exploration of the data and then learning gnuplot led to this, the code
+      isn't pretty but will at some point find it's way onto my Github.
     %p
       Thanks to
       %a{href: 'https://github.com/watty62'} watty62
       for collecting and preprocessing the Scotland data at
       %a{href: 'https://github.com/watty62/Scot_covid19'} https://github.com/watty62/Scot_covid19
       Data upto #{upto_scotland.strftime('%A %-d %B %Y')} is currently available and displayed.
-      - if updating
-        %span.highlight
-          The data is currently being updated.
       %br
       Thanks to
       %a{href: 'https://github.com/tomwhite'} tomwhite
@@ -26,7 +25,13 @@
         %span.highlight
           The data is currently being updated.
     %p
-      Two of the graphs below are absent as the corresponding health board has reported 0 cases.
+      On start up and every hour thereafter this site checks for new data and if 
+      new data is available it regenerates itself.
+      - if updating
+        %span.highlight
+          The data is currently being updated.
+      Two of the graphs below are absent as the corresponding health boards (Orkney and Western Isles)
+      have reported zero cases. When they report a case then the graphs will be automatically generated.
 
     #links{style: 'padding-left: 15%; padding-right: 15%;'}
       %div{style: 'display: inline-block; min-width: 16em;'}
