@@ -10,18 +10,22 @@ Bundler.require
 
 require 'rollbar/middleware/rack'
 
-NUMBERS_PER = 100_000
-PLOT_SIZE = '900,600'
+ROOT_DIR = __dir__
+DATA_DIR = File.join(ROOT_DIR, 'data')
+PUBLIC_DIR = File.join(ROOT_DIR, 'public')
 
-INPUT_DIR = File.join(__dir__, 'input')
-OUTPUT_DIR = File.join(__dir__, 'output')
-HEALTH_BOARD_POPULATIONS_FILE = 'HB_Populations.csv'
-HEALTH_BOARD_CASES_FILE = 'regional_cases.csv'
-HEALTH_BOARD_DEATHS_FILE = 'regional_deaths.csv'
+NUMBERS_PER = 100_000
+
+loader = Zeitwerk::Loader.new
+loader.push_dir(ROOT_DIR)
+loader.ignore(File.join(ROOT_DIR, 'data'))
+loader.ignore(File.join(ROOT_DIR, 'public'))
+loader.ignore(File.join(ROOT_DIR, 'template'))
+loader.setup
 
 $VERBOSE = false
 
-$logger = Logger.new(STDERR)
+$logger = Logger.new(STDOUT)
 $logger.formatter = proc do |severity, datetime, progname, message|
   if Thread.current.thread_variable_get(:logger_label)
     message = "#{Thread.current.thread_variable_get(:logger_label)} - #{message}"
@@ -37,4 +41,16 @@ if ENV['DYNO'] && !File.exist?('/app/.apt/usr/bin/gnuplot')
   FileUtils.link '/app/.apt/usr/bin/gnuplot-qt', '/app/.apt/usr/bin/gnuplot'
 end
 
-require_relative 'update'
+def update
+  ScotlandCovid19Data.update
+  Make::Csv.scotland
+  Make::Plot.scotland
+
+  ScotlandCovid19Data.health_boards.each do |health_board|
+    Make::Csv.health_board health_board
+    Make::Plot.health_board health_board
+    Make::Plot.health_board_comparison health_board
+  end
+
+  Make::Html.index(save: true)
+end

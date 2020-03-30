@@ -32,24 +32,6 @@ $scheduler.every(3_600, overlap: false, timeout: 120) do
   update
 end
 
-
-class ErrorLogger
-  def initialize(app)
-    @app = app
-  end
-
-  def call(env)
-    @app.call(env)
-  rescue StandardError => e
-    $logger.error "#{env['HTTP_X_FORWARDED_FOR'] || env["REMOTE_ADDR"]} " \
-                  "#{env[Rack::REQUEST_METHOD]} #{env[Rack::SCRIPT_NAME]} #{env[Rack::PATH_INFO]} " \
-                  "\n#{e}\n#{e.backtrace.join("\n")}"
-    raise e if ENV['RACK_ENV'] == 'development'
-    [503, {'Content-Type'  => 'text/plain'}, ['Server error']]
-  end
-end
-
-
 class Rack::CommonLogger
   def log(env, status, header, began_at)
     length = extract_content_length(header)
@@ -72,12 +54,12 @@ class Rack::CommonLogger
 end
 
 $logger.info 'Configuration complete'
-use ErrorLogger
+use Middleware::ErrorLogger
 use Rollbar::Middleware::Rack
 
 use Rack::Static,
   urls: ['/'],
-  root: 'output',
+  root: 'public',
   index: 'index.html',
   header_rules: [[:all, {'Cache-Control' => 'public, max-age=300'}]]
 
