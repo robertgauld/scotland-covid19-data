@@ -42,6 +42,9 @@ if ENV['DYNO'] && !File.exist?('/app/.apt/usr/bin/gnuplot')
 end
 
 def update
+  return unless ScotlandCovid19Data.update_available? || 
+                UkCovid19Data.update_available?
+
   ScotlandCovid19Data.update
   UkCovid19Data.update
 
