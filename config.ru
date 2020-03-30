@@ -10,9 +10,24 @@ end
 
 update
 
-$logger.info 'Starting Rufas Scheduler'
-scheduler = Rufus::Scheduler.new
-scheduler.every 3_600 do
+$logger.info 'Starting Rufus Scheduler'
+$scheduler = Rufus::Scheduler.new
+
+def $scheduler.on_error(job, error)
+  $logger.error "Error in Rufus Job\n" \
+                "Job: #{job.class} #{job.original.inspect} #{job.opts.inspect}\n" \
+                "Error: #{error}\n#{error.backtrace.join("\n")}"
+
+  Rollbar.error(
+    error,
+    job_details: "#{job.class} #{job.original.inspect} #{job.opts.inspect}",
+    job: job,
+    scheduler: $scheduler,
+    env: ENV
+  )
+end
+
+$scheduler.every(3_600, overlap: false, timeout: 120) do
   Thread.current.thread_variable_set(:logger_label, 'Background update')
   update
 end
