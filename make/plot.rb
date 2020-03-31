@@ -37,7 +37,6 @@ module Make
 
       basic_plot(**options, filename: 'daily_tests.png') do |plot|
         plot.title 'Scottish COVID-19 Daily Tests'
-        plot.xrange "['#{tests.keys.first.strftime('%Y-%m-01')}':'#{Date.parse(tests.keys.last.strftime('%Y-%m-01')).next_month.prev_day}']"
 
         plot.add_data Gnuplot::DataSet.new([data[0], data[2]]) { |ds|
           ds.using = '1:2'
@@ -63,7 +62,6 @@ module Make
 
       basic_plot(**options, filename: 'cumulative_tests.png') do |plot|
         plot.title 'Scottish COVID-19 Cumulative Tests'
-        plot.xrange "['#{tests.keys.first.strftime('%Y-%m-01')}':'#{Date.parse(tests.keys.last.strftime('%Y-%m-01')).next_month.prev_day}']"
 
         plot.add_data Gnuplot::DataSet.new([data[0], data[2]]) { |ds|
           ds.using = '1:2'
@@ -89,7 +87,6 @@ module Make
 
       basic_plot(**options, filename: "cases_per_#{NUMBERS_PER}.png") do |plot|
         plot.title 'Scottish Health Board COVID-19 Cases'
-        plot.xrange "['#{Date.parse(data[0].first).strftime('%Y-%m-01')}':'#{Date.parse(Date.parse(data[0].last).strftime('%Y-%m-01')).next_month.prev_day}']"
         plot.logscale 'y 10'
 
         data[1..-2].each.with_index do |this_data, index|
@@ -112,7 +109,6 @@ module Make
 
       basic_plot(**options, filename: "deaths_per_#{NUMBERS_PER}.png") do |plot|
         plot.title 'Scottish Health Board COVID-19 Deaths'
-        plot.xrange "['#{Date.parse(data[0].first).strftime('%Y-%m-01')}':'#{Date.parse(Date.parse(data[0].last).strftime('%Y-%m-01')).next_month.prev_day}']"
         plot.logscale 'y 10'
 
         data[1..-2].each.with_index do |this_data, index|
@@ -137,7 +133,6 @@ module Make
 
       basic_plot(**options, filename: 'icu_deceased.png') do |plot|
         plot.title 'Scottish COVID-19 Cumulative Deceased and Intensive Care Use'
-        plot.xrange "['#{earliest_date.strftime('%Y-%m-01')}':'#{Date.parse(latest_date.strftime('%Y-%m-01')).next_month.prev_day}']"
         plot.logscale 'y 10'
 
         plot.add_data Gnuplot::DataSet.new([data[0], data[1]]) { |ds|
@@ -169,7 +164,6 @@ module Make
 
       comparrison_plot(**options, filename: 'scotland_vs_uk.png') do |plot|
         plot.title 'Scotland vs UK'
-        plot.xrange "['#{data[0].first.strftime('%Y-%m-01')}':'#{Date.parse(data[0].last.strftime('%Y-%m-01')).next_month.prev_day}']"
 
         plot.add_data Gnuplot::DataSet.new([data[0], data[1]]) { |ds|
           ds.using = '1:2'
@@ -208,7 +202,6 @@ module Make
 
       basic_plot(**options, filename: "#{name.downcase.gsub(' ', '_')}_per_#{NUMBERS_PER}.png") do |plot|
         plot.title "COVID-19 in #{name} (per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')})"
-        plot.xrange "['#{data[0].first.strftime('%Y-%m-01')}':'#{Date.parse(data[0].last.strftime('%Y-%m-01')).next_month.prev_day}']"
         plot.logscale 'y 10'
 
         plot.add_data Gnuplot::DataSet.new([data[0], data[1]]) { |ds|
@@ -241,7 +234,6 @@ module Make
 
       comparrison_plot(**options, filename: "#{name.downcase.gsub(' ', '_')}_vs_scotland.png") do |plot|
         plot.title "COVID-19 in #{name} vs Scotland"
-        plot.xrange "['#{data[0].first.strftime('%Y-%m-01')}':'#{Date.parse(data[0].last.strftime('%Y-%m-01')).next_month.prev_day}']"
         plot.ylabel "#{name} per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')} ÷ Scotland per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')}"
 
         plot.add_data Gnuplot::DataSet.new([data[0], data[1]]) { |ds|
@@ -277,11 +269,17 @@ module Make
               fail "#{target.inspect} is not a valid target."
             end
 
+            start_date = Date.new(2020, 2, 17)
+            next_or_current_sunday = Date.today + (Date.today.wday - 7).abs % 7
+
             plot.xdata 'time'
             plot.timefmt '\'%Y-%m-%d\''
-            plot.key 'outside center bottom horizontal'
             plot.format 'x \'%d/%m/%y\''
+            plot.xrange "['#{start_date}':'#{next_or_current_sunday}']"
+
             plot.yrange '[0:]'
+
+            plot.key 'outside center bottom horizontal'
             plot.grid
 
             yield plot
