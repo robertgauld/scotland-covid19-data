@@ -48,14 +48,8 @@ def update
   ScotlandCovid19Data.update
   UkCovid19Data.update
 
-  Make::Csv.scotland
-  Make::Plot.scotland
-
-  ScotlandCovid19Data.health_boards.each do |health_board|
-    Make::Csv.health_board health_board
-    Make::Plot.health_board health_board
-    Make::Plot.health_board_comparison health_board
-  end
+  Make::Csv.all
+  Make::Plot.all
 
   nil
 end

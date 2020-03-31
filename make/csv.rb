@@ -2,6 +2,19 @@
 
 module Make
   class Csv
+    def self.all(**options)
+      scotland **options
+      health_boards **options
+      nil
+    end
+
+    def self.health_boards(**options)
+      ScotlandCovid19Data.health_boards.each do |health_board|
+        health_board health_board, **options
+      end
+      nil
+    end
+
     def self.scotland
       $logger.info 'Writing CSVs for Scotland.'
       health_boards = ScotlandCovid19Data.health_boards
