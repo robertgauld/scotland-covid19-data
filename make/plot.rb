@@ -139,7 +139,15 @@ module Make
       data = Make::Data.health_board(name).transpose
 
       if [data[1].reject(&:nil?).max, data[2].reject(&:nil?).max].all?(0.0)
-        $logger.debug "#{name} has no cases or deaths."
+        $logger.debug "#{name} has no cases."
+        if options[:target] && options[:target] != :file
+          return "#{name} has no cases."
+        else
+          FileUtils.copy(
+            File.join(ROOT_DIR, 'template', 'no_cases.png'),
+            File.join(PUBLIC_DIR, "#{name.downcase.gsub(' ', '_')}_per_#{NUMBERS_PER}.png")
+          )
+        end
         return
       end
 
