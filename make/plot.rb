@@ -269,13 +269,10 @@ module Make
               fail "#{target.inspect} is not a valid target."
             end
 
-            start_date = Date.new(2020, 2, 17)
-            next_or_current_sunday = Date.today + (Date.today.wday - 7).abs % 7
-
             plot.xdata 'time'
             plot.timefmt '\'%Y-%m-%d\''
             plot.format 'x \'%d/%m/%y\''
-            plot.xrange "['#{start_date}':'#{next_or_current_sunday}']"
+            plot.xrange "['#{Date.new(2020, 2, 17)}':'#{Date.today}']"
 
             plot.yrange '[0:]'
 
