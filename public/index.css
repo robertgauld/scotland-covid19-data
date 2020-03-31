@@ -1,16 +1,21 @@
 h1 {
-  text-align: center;
+  text-align:    center;
+}
+
+hr {
+  width:         50%;
+  margin-top:    3em;
 }
 
 span.highlight {
-  background:  yellow;
+  background:    yellow;
   font-style:    italic;
   padding-left:  0.5em;
-  padding-right: 0.5em
+  padding-right: 0.5em;
 }
 
 div.chart {
-  width:      45%;
-  text-align: center;
-  display:    inline-block;
+  width:         45%;
+  text-align:    center;
+  display:       inline-block;
 }
