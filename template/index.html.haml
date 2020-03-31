@@ -47,9 +47,9 @@
 
     %hr
 
-    %a{name: 'uk'}
-    %h2 Whole of the UK
-    #uk
+    #uk{class: 'chart_group'}
+      %a{name: 'uk'}
+      %h2 Whole of the UK
       .chart
         %a{href: "/uk_cases_per_#{numbers_per}.png"}
           %img{src: "/uk_cases_per_#{numbers_per}.png", width: 450, height: 300}
@@ -81,9 +81,9 @@
         %br
         %a{href: "/northern_ireland_per_#{numbers_per}.csv"} Download data
 
-    %a{name: 'scotland'}
-    %h2 Whole of Scotland
-    #scotland
+    #scotland{class: 'chart_group'}
+      %a{name: 'scotland'}
+      %h2 Whole of Scotland
       .chart
         %a{href: '/scotland_daily_tests.png'}
           %img{src: '/scotland_daily_tests.png', width: 450, height: 300}
@@ -119,10 +119,11 @@
 
     - health_boards.each do |health_board|
       - health_board_link = health_board.downcase.gsub(' ', '_')
-      %a{name: health_board_link}
-      %h2=health_board
-      %a{href: "/#{health_board_link}_per_#{numbers_per}.csv"} Download data
-      %div{id: health_board_link, class: 'health_board'}
+      %div{id: health_board_link, class: 'health_board chart_group'}
+        %a{name: health_board_link}
+        %h2=health_board
+        %a{href: "/#{health_board_link}_per_#{numbers_per}.csv"} Download data
+        %br
         .chart
           %a{href: "/#{health_board_link}_per_#{numbers_per}.png"}
             %img{src: "/#{health_board_link}_per_#{numbers_per}.png", width: 450, height: 300}
