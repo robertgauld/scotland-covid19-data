@@ -5,6 +5,7 @@ module Make
     PLOT_SIZE = '900,600'
 
     def self.all(**options)
+      uk **options
       scotland **options
       health_boards **options
       nil
@@ -24,7 +25,7 @@ module Make
       scotland_cases_by_health_board **options
       scotland_deaths_by_health_board **options
       scotland_deceased_and_icu **options
-      scotland_vs_uk **options
+      country_comparison 'Scotland', **options
     end
 
     def self.scotland_daily_tests(**options)
@@ -85,7 +86,7 @@ module Make
                   .map { |key, value| [key.to_s, *value.sort_by(&:first).map(&:last)] }
                   .transpose
 
-      basic_plot(**options, filename: "cases_per_#{NUMBERS_PER}.png") do |plot|
+      basic_plot(**options, filename: "scotland_cases_per_#{NUMBERS_PER}.png") do |plot|
         plot.title 'Scottish Health Board COVID-19 Cases'
         plot.logscale 'y 10'
 
@@ -107,7 +108,7 @@ module Make
                    .map { |key, value| [key.to_s, *value.sort_by(&:first).map(&:last)] }
                    .transpose
 
-      basic_plot(**options, filename: "deaths_per_#{NUMBERS_PER}.png") do |plot|
+      basic_plot(**options, filename: "scotland_deaths_per_#{NUMBERS_PER}.png") do |plot|
         plot.title 'Scottish Health Board COVID-19 Deaths'
         plot.logscale 'y 10'
 
@@ -145,38 +146,6 @@ module Make
           ds.using = '1:2'
           ds.with = 'line'
           ds.title = 'Cumulative deceased'
-        }
-      end
-    end
-
-    def self.scotland_vs_uk(**options)
-      $logger.info 'Plotting Scotland vs UK data.'
-      uk_data = UkCovid19Data.uk
-      scotland_data = UkCovid19Data.scotland
-      data = Array.new(3) { [] }
-      scotland_data.keys.sort.each do |date|
-        next unless uk_data[date]
-
-        data[0].push date
-        data[1].push scotland_data.dig(date, :confirmed_cases) / uk_data.dig(date, :confirmed_cases)
-        data[2].push scotland_data.dig(date, :deaths) / uk_data.dig(date, :deaths)
-      end
-
-      comparrison_plot(**options, filename: 'scotland_vs_uk.png') do |plot|
-        plot.title 'Scotland vs UK'
-
-        plot.add_data Gnuplot::DataSet.new([data[0], data[1]]) { |ds|
-          ds.using = '1:2'
-          ds.with = 'line'
-          ds.title = 'Cases'
-          ds.linewidth = 2
-        }
-
-        plot.add_data Gnuplot::DataSet.new([data[0], data[2]]) { |ds|
-          ds.using = '1:2'
-          ds.with = 'line'
-          ds.title = 'Deaths'
-          ds.linewidth = 2
         }
       end
     end
@@ -221,6 +190,8 @@ module Make
     end
     
     def self.health_board_comparison(name, **options)
+      fail "#{name.inspect} is not a known health board" unless ScotlandCovid19Data.health_boards.include?(name)
+
       $logger.info "Plotting #{name} vs Scotland data."
 
       cases = ScotlandCovid19Data.cases
@@ -235,6 +206,171 @@ module Make
       comparrison_plot(**options, filename: "#{name.downcase.gsub(' ', '_')}_vs_scotland.png") do |plot|
         plot.title "COVID-19 in #{name} vs Scotland"
         plot.ylabel "#{name} per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')} ÷ Scotland per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')}"
+
+        plot.add_data Gnuplot::DataSet.new([data[0], data[1]]) { |ds|
+          ds.using = '1:2'
+          ds.with = 'line'
+          ds.title = 'Cases'
+          ds.linewidth = 2
+        }
+
+        plot.add_data Gnuplot::DataSet.new([data[0], data[2]]) { |ds|
+          ds.using = '1:2'
+          ds.with = 'line'
+          ds.title = 'Deaths'
+          ds.linewidth = 2
+        }
+      end
+    end
+
+    def self.uk(**options)
+      uk_cases_by_country **options
+      uk_deaths_by_country **options
+      country_comparison 'England', **options
+      country_comparison 'Scotland', **options
+      country_comparison 'Wales', **options
+      country_comparison 'Northern Ireland', **options
+    end
+
+    def self.uk_cases_by_country(**options)
+      $logger.info 'Plotting cases by country data for UK.'
+      england = UkCovid19Data.england
+      scotland = UkCovid19Data.scotland
+      wales = UkCovid19Data.wales
+      northern_ireland = UkCovid19Data.northern_ireland
+      start_date = [england.keys.min, scotland.keys.min, wales.keys.min, northern_ireland.keys.min].min
+      finish_date = [england.keys.max, scotland.keys.max, wales.keys.max, northern_ireland.keys.max].max
+
+      data = Array.new(5) { Array.new(finish_date - start_date) }
+      (start_date..finish_date).each do |date|
+        data[0].push date
+        data[1].push england.dig(date, :confirmed_cases)
+        data[2].push scotland.dig(date, :confirmed_cases)
+        data[3].push wales.dig(date, :confirmed_cases)
+        data[4].push northern_ireland.dig(date, :confirmed_cases)
+      end
+
+      basic_plot(**options, filename: "uk_cases_per_#{NUMBERS_PER}.png") do |plot|
+        plot.title 'UK COVID-19 Cases'
+        plot.logscale 'y 10'
+
+        plot.add_data Gnuplot::DataSet.new([data[0], data[1]]) { |ds|
+          ds.using = '1:2'
+          ds.with = 'line'
+          ds.title = 'England'
+          ds.linewidth = 2
+          ds.linecolor = 'rgb "red"'
+        }
+
+        plot.add_data Gnuplot::DataSet.new([data[0], data[2]]) { |ds|
+          ds.using = '1:2'
+          ds.with = 'line'
+          ds.title = 'Scotland'
+          ds.linewidth = 2
+          ds.linecolor = 'rgb "blue"'
+        }
+
+        plot.add_data Gnuplot::DataSet.new([data[0], data[3]]) { |ds|
+          ds.using = '1:2'
+          ds.with = 'line'
+          ds.title = 'Wales'
+          ds.linewidth = 2
+          ds.linecolor = 'rgb "green"'
+        }
+
+        plot.add_data Gnuplot::DataSet.new([data[0], data[4]]) { |ds|
+          ds.using = '1:2'
+          ds.with = 'line'
+          ds.title = 'Northern Ireland'
+          ds.linewidth = 2
+          ds.linecolor = 'rgb "cyan"'
+        }
+      end
+    end
+
+    def self.uk_deaths_by_country(**options)
+      $logger.info 'Plotting cases by country data for UK.'
+      england = UkCovid19Data.england
+      scotland = UkCovid19Data.scotland
+      wales = UkCovid19Data.wales
+      northern_ireland = UkCovid19Data.northern_ireland
+      start_date = [england.keys.min, scotland.keys.min, wales.keys.min, northern_ireland.keys.min].min
+      finish_date = [england.keys.max, scotland.keys.max, wales.keys.max, northern_ireland.keys.max].max
+
+      data = Array.new(5) { Array.new(finish_date - start_date) }
+      (start_date..finish_date).each do |date|
+        data[0].push date
+        data[1].push england.dig(date, :deaths)
+        data[2].push scotland.dig(date, :deaths)
+        data[3].push wales.dig(date, :deaths)
+        data[4].push northern_ireland.dig(date, :deaths)
+      end
+
+      basic_plot(**options, filename: "uk_deaths_per_#{NUMBERS_PER}.png") do |plot|
+        plot.title 'UK COVID-19 Deaths'
+        plot.logscale 'y 10'
+
+        plot.add_data Gnuplot::DataSet.new([data[0], data[1]]) { |ds|
+          ds.using = '1:2'
+          ds.with = 'line'
+          ds.title = 'England'
+          ds.linewidth = 2
+          ds.linecolor = 'rgb "red"'
+        }
+
+        plot.add_data Gnuplot::DataSet.new([data[0], data[2]]) { |ds|
+          ds.using = '1:2'
+          ds.with = 'line'
+          ds.title = 'Scotland'
+          ds.linewidth = 2
+          ds.linecolor = 'rgb "blue"'
+        }
+
+        plot.add_data Gnuplot::DataSet.new([data[0], data[3]]) { |ds|
+          ds.using = '1:2'
+          ds.with = 'line'
+          ds.title = 'Wales'
+          ds.linewidth = 2
+          ds.linecolor = 'rgb "green"'
+        }
+
+        plot.add_data Gnuplot::DataSet.new([data[0], data[4]]) { |ds|
+          ds.using = '1:2'
+          ds.with = 'line'
+          ds.title = 'Northern Ireland'
+          ds.linewidth = 2
+          ds.linecolor = 'rgb "cyan"'
+        }
+      end
+    end
+
+    def self.country_comparison(name, **options)
+      unless ['England', 'Scotland', 'Wales', 'Northern Ireland'].include?(name)
+        fail "#{name.inspect} is not a known country"
+      end
+
+      $logger.info "Plotting #{name} vs Scotland data."
+
+      uk = UkCovid19Data.uk
+      country = UkCovid19Data.send name.downcase.gsub(' ', '_')
+      start_date = [uk.keys.min, country.keys.min].max
+      finish_date = [uk.keys.max, country.keys.max].min
+
+      data = Array.new(3) { [] }
+      (start_date..finish_date).each do |date|
+        next unless uk.dig(date, :confirmed_cases) &&
+                    uk.dig(date, :deaths) &&
+                    country.dig(date, :confirmed_cases) &&
+                    country.dig(date, :deaths)
+
+        data[0].push date
+        data[1].push country.dig(date, :confirmed_cases) / uk.dig(date, :confirmed_cases)
+        data[2].push country.dig(date, :deaths) / uk.dig(date, :deaths)
+      end
+
+      comparrison_plot(**options, filename: "#{name.downcase.gsub(' ', '_')}_vs_uk.png") do |plot|
+        plot.title "COVID-19 in #{name} vs the UK"
+        plot.ylabel "#{name} per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')} ÷ UK per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')}"
 
         plot.add_data Gnuplot::DataSet.new([data[0], data[1]]) { |ds|
           ds.using = '1:2'
@@ -287,7 +423,6 @@ module Make
 
       def comparrison_plot(**options)
         basic_plot(**options) do |plot|
-          # plot 1 lw 1 lt rgb '#88ff88',
           plot.add_data Gnuplot::DataSet.new('1') { |ds|
             ds.linewidth = 1
             ds.title = ''

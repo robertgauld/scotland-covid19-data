@@ -35,7 +35,9 @@
 
     #links{style: 'padding-left: 15%; padding-right: 15%;'}
       %div{style: 'display: inline-block; min-width: 16em;'}
-        %a{style: 'margin-left: 17.2em; margin-right: 1em;', href: '#scotland'} Scotland
+        %a{style: 'margin-left: 1em; margin-right: 1em;', href: '#uk'} UK
+      %div{style: 'display: inline-block; min-width: 16em;'}
+        %a{style: 'margin-left: 1em; margin-right: 1em;', href: '#scotland'} Scotland
       %br
       %br
       - health_boards.each do |health_board|
@@ -44,6 +46,40 @@
           %a{style: 'margin-left: 1em; margin-right: 1em;', href: "##{health_board_link}"}=health_board
 
     %hr
+
+    %a{name: 'uk'}
+    %h2 Whole of the UK
+    #uk
+      .chart
+        %a{href: "/uk_cases_per_#{numbers_per}.png"}
+          %img{src: "/uk_cases_per_#{numbers_per}.png", width: 450, height: 300}
+        -#%br
+        -#%a{href: "/uk_cases_per_#{numbers_per}.csv"} Download data
+      .chart
+        %a{href: "/uk_deaths_per_#{numbers_per}.png"}
+          %img{src: "/uk_deaths_per_#{numbers_per}.png", width: 450, height: 300}
+        -#%br
+        -#%a{href: "/uk_deaths_per_#{numbers_per}.csv"} Download data
+      .chart
+        %a{href: '/england_vs_uk.png'}
+          %img{src: '/england_vs_uk.png', width: 450, height: 300}
+        -#%br
+        -#%a{href: '/england_vs_uk.csv'} Download data
+      .chart
+        %a{href: '/scotland_vs_uk.png'}
+          %img{src: '/scotland_vs_uk.png', width: 450, height: 300}
+        -#%br
+        -#%a{href: '/scotland_vs_uk.csv'} Download data
+      .chart
+        %a{href: '/wales_vs_uk.png'}
+          %img{src: '/wales_vs_uk.png', width: 450, height: 300}
+        -#%br
+        -#%a{href: '/wales_vs_uk.csv'} Download data
+      .chart
+        %a{href: '/northern_ireland_vs_uk.png'}
+          %img{src: '/northern_ireland_vs_uk.png', width: 450, height: 300}
+        -#%br
+        -#%a{href: '/northern_ireland_vs_uk.csv'} Download data
 
     %a{name: 'scotland'}
     %h2 Whole of Scotland
@@ -59,15 +95,15 @@
         %br
         %a{href: '/tests.csv'} Download data
       .chart
-        %a{href: "/cases_per_#{numbers_per}.png"}
-          %img{src: "/cases_per_#{numbers_per}.png", width: 450, height: 300}
-        %br
-        %a{href: "/cases_per_#{numbers_per}.csv"} Download data
+        %a{href: "/scotland_cases_per_#{numbers_per}.png"}
+          %img{src: "/scotland_cases_per_#{numbers_per}.png", width: 450, height: 300}
+        -#%br
+        -#%a{href: "/scotland_cases_per_#{numbers_per}.csv"} Download data
       .chart
-        %a{href: "/deaths_per_#{numbers_per}.png"}
-          %img{src: "/deaths_per_#{numbers_per}.png", width: 450, height: 300}
-        %br
-        %a{href: "/deaths_per_#{numbers_per}.csv"} Download data
+        %a{href: "/scotland_deaths_per_#{numbers_per}.png"}
+          %img{src: "/scotland_deaths_per_#{numbers_per}.png", width: 450, height: 300}
+        -#%br
+        -#%a{href: "/scotland_deaths_per_#{numbers_per}.csv"} Download data
       .chart
         %a{href: '/icu_deceased.png'}
           %img{src: '/icu_deceased.png', width: 450, height: 300}
@@ -76,8 +112,8 @@
       .chart
         %a{href: '/scotland_vs_uk.png'}
           %img{src: '/scotland_vs_uk.png', width: 450, height: 300}
-        %br
-        %a{href: '/scotland_vs_uk.csv'} Download data
+        -#%br
+        -#%a{href: '/scotland_vs_uk.csv'} Download data
 
     %hr
 
@@ -86,7 +122,7 @@
       %a{name: health_board_link}
       %h2=health_board
       %a{href: "/#{health_board_link}_per_#{numbers_per}.csv"} Download data
-      #scotland{class: 'health_board_link'}
+      %div{id: health_board_link, class: 'health_board'}
         .chart
           %a{href: "/#{health_board_link}_per_#{numbers_per}.png"}
             %img{src: "/#{health_board_link}_per_#{numbers_per}.png", width: 450, height: 300}

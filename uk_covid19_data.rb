@@ -112,7 +112,7 @@ class UkCovid19Data
     end
 
     def load_northern_ireland
-      @@nothern_ireland = load_(NORTHERN_IRELAND_FILE, NORTHERN_IRELAND_SCALE)
+      @@northern_ireland = load_(NORTHERN_IRELAND_FILE, NORTHERN_IRELAND_SCALE)
     end
 
     def load_(file, scale)
