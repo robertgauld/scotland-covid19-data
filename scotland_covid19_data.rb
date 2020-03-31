@@ -156,7 +156,7 @@ class ScotlandCovid19Data
         download(only: INTENSIVE_CARE_FILE)
       end
 
-      @@intensive_care = CSV.read(File.join(DATA_DIR, INTENSIVE_CARE_FILE), headers: false)
+      @@intensive_care = CSV.read(File.join(DATA_DIR, INTENSIVE_CARE_FILE), headers: true)
                             .map { |record| [Date.parse(record[0]), record[1]&.to_i] }
                             .to_h
       $logger.debug "Read intensive care data for #{@@intensive_care.keys.sort.values_at(0, -1).map(&:to_s).join(' to ')}."

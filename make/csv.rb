@@ -22,81 +22,46 @@ module Make
     end
 
     def self.scotland(**options)
-      scotland_cases **options
-      scotland_deaths **options
+      scotland_cases_by_health_board **options
+      scotland_deaths_by_health_board **options
       scotland_icu_deceased **options
       scotland_tests **options
     end
 
-    def self.scotland_cases(**options)
+    def self.scotland_cases_by_health_board(**options)
       $logger.info 'Writing cases CSV for Scotland.'
-      health_boards = ScotlandCovid19Data.health_boards
-      cases = ScotlandCovid19Data.cases
-
-      data = CSV::Table.new([], headers: ['Date', *health_boards, 'Grand Total'])  
-      cases.keys.sort.each do |date|
-        data.push [date, *cases.fetch(date).values_at(*health_boards, 'Grand Total')]
-      end
-      render data, filename:  "scotland_cases_per_#{NUMBERS_PER}.csv", **options
+      headers = ['Date', *ScotlandCovid19Data.health_boards, 'Grand Total']
+      data = Make::Data.scotland_cases_by_health_board
+      render headers, data, filename:  "scotland_cases_per_#{NUMBERS_PER}.csv", **options
     end
 
-    def self.scotland_deaths(**options)
+    def self.scotland_deaths_by_health_board(**options)
       $logger.info 'Writing deaths CSV for Scotland.'
-      health_boards = ScotlandCovid19Data.health_boards
-      deaths = ScotlandCovid19Data.deaths
-
-      data = CSV::Table.new([], headers: ['Date', *health_boards, 'Grand Total'])  
-      deaths.keys.sort.each do |date|
-        data.push [date, *deaths.fetch(date).values_at(*health_boards, 'Grand Total')]
-      end
-      render data, filename:  "scotland_deaths_per_#{NUMBERS_PER}.csv", **options
+      headers = ['Date', *ScotlandCovid19Data.health_boards, 'Grand Total']
+      data = Make::Data.scotland_deaths_by_health_board
+      render headers, data, filename:  "scotland_deaths_per_#{NUMBERS_PER}.csv", **options
     end
 
     def self.scotland_icu_deceased(**options)
       $logger.info 'Writing ICU and deceased CSV for Scotland.'
-      intensive_care = ScotlandCovid19Data.intensive_care
-      deceased = ScotlandCovid19Data.deceased
-
-      earliest_date = [deceased.keys.min, intensive_care.keys.min].min
-      latest_date = [deceased.keys.max, intensive_care.keys.max].max
-
-      data = CSV::Table.new([], headers: ['Date', 'Patients in intensive care', 'Cumulative deceased'])  
-      (earliest_date..latest_date).each do |date|
-        data.push [date, intensive_care[date], deceased[date]]
-      end
-      render data, filename:  'scotland_icu_deceased.csv', **options
+      headers = ['Date', 'Patients in intensive care', 'Cumulative deceased']
+      data = Make::Data.scotland_icu_deceased
+      render headers, data, filename:  'scotland_icu_deceased.csv', **options
     end
 
     def self.scotland_tests(**options)
       $logger.info 'Writing tests CSV for Scotland.'
-      tests = ScotlandCovid19Data.tests
-
-
-      data = CSV::Table.new([], headers: ['Date', 'Positive', 'Negative', 'Cumulative Positive', 'Cumulative Negative'])  
-      tests.values.sort_by { |record| record['Date'] }.each do |record|
-        data.push record.values_at('Date', 'Today Positive', 'Today Negative', 'Total Positive', 'Total Negative')
-      end
-      render data, filename:  'scotland_tests.csv', **options
+      headers = ['Date', 'Positive', 'Negative', 'Cumulative Positive', 'Cumulative Negative']
+      data = Make::Data.scotland_tests
+      render headers, data, filename:  'scotland_tests.csv', **options
     end
 
     def self.health_board(name, **options)
       fail "#{name.inspect} is not a known health board" unless ScotlandCovid19Data.health_boards.include?(name)
       $logger.info "Writing health board CSV for #{name}."
-      cases = ScotlandCovid19Data.cases
-      deaths = ScotlandCovid19Data.deaths
-      data = CSV::Table.new([], headers: ['Date', 'Cases', 'Deaths', 'Cases Ratio', 'Deaths Ratio'])
-
-      cases.keys.sort.each do |date|
-        data.push [
-          date,
-          cases.dig(date, name),
-          deaths.dig(date, name),
-          cases.dig(date, name) ? cases.dig(date, name) / cases.dig(date, 'Grand Total') : nil,
-          deaths.dig(date, name) ? deaths.dig(date, name) / deaths.dig(date, 'Grand Total') : nil
-        ]
-      end
-
-      render data, filename:  "#{name.downcase.gsub(' ', '_')}_per_#{NUMBERS_PER}.csv", **options
+      headers = ['Date', 'Cases', 'Deaths', 'Cases Ratio', 'Deaths Ratio']
+      data = Make::Data.health_board(name)
+      render headers, data, filename:  "#{name.downcase.gsub(' ', '_')}_per_#{NUMBERS_PER}.csv", **options
     end
 
     def self.country(name, **options)
@@ -105,92 +70,37 @@ module Make
       end
 
       $logger.info "Writing country CSV for #{name}."
-
-      uk = UkCovid19Data.uk
-      country = UkCovid19Data.send name.downcase.gsub(' ', '_')
-      start_date = [uk.keys.min, country.keys.min].max
-      finish_date = [uk.keys.max, country.keys.max].min
-
-
-      data = CSV::Table.new([], headers: ['Date', 'Cases', 'Deaths', 'Cases Ratio', 'Deaths Ratio'])
-      (start_date..finish_date).each do |date|
-        next unless uk.dig(date, :confirmed_cases) &&
-                    uk.dig(date, :deaths) &&
-                    country.dig(date, :confirmed_cases) &&
-                    country.dig(date, :deaths)
-
-        data.push [
-          date,
-          country.dig(date, :confirmed_cases),
-          country.dig(date, :deaths),
-          country.dig(date, :confirmed_cases) / uk.dig(date, :confirmed_cases),
-          country.dig(date, :deaths) / uk.dig(date, :deaths)
-        ]
-      end
-
-      render data, filename:  "#{name.downcase.gsub(' ', '_')}_per_#{NUMBERS_PER}.csv", **options
+      headers = ['Date', 'Cases', 'Deaths', 'Cases Ratio', 'Deaths Ratio']
+      data = Make::Data.country(name)
+      render headers, data, filename:  "#{name.downcase.gsub(' ', '_')}_per_#{NUMBERS_PER}.csv", **options
     end
 
     def self.uk_cases(**options)
       $logger.info 'Writing cases CSV for UK.'
-      uk = UkCovid19Data.uk
-      england = UkCovid19Data.england
-      scotland = UkCovid19Data.scotland
-      wales = UkCovid19Data.wales
-      northern_ireland = UkCovid19Data.northern_ireland
-      start_date = [england.keys.min, scotland.keys.min, wales.keys.min, northern_ireland.keys.min].min
-      finish_date = [england.keys.max, scotland.keys.max, wales.keys.max, northern_ireland.keys.max].max
-
-      data = CSV::Table.new([], headers: ['Date', 'England', 'Scotland', 'Wales', 'Northern', 'Grand Total'])  
-      (start_date..finish_date).each do |date|
-        data.push [
-          date,
-          england.dig(date, :confirmed_cases),
-          scotland.dig(date, :confirmed_cases),
-          wales.dig(date, :confirmed_cases),
-          northern_ireland.dig(date, :confirmed_cases),
-          uk.dig(date, :confirmed_cases),
-        ]
-      end
-
-      render data, filename:  "uk_cases_per_#{NUMBERS_PER}.csv", **options
+      headers = ['Date', 'England', 'Scotland', 'Wales', 'Northern', 'Grand Total']  
+      data = Make::Data.uk_cases
+      render headers, data, filename:  "uk_cases_per_#{NUMBERS_PER}.csv", **options
     end
 
     def self.uk_deaths(**options)
       $logger.info 'Writing deaths CSV for UK.'
-      uk = UkCovid19Data.uk
-      england = UkCovid19Data.england
-      scotland = UkCovid19Data.scotland
-      wales = UkCovid19Data.wales
-      northern_ireland = UkCovid19Data.northern_ireland
-      start_date = [england.keys.min, scotland.keys.min, wales.keys.min, northern_ireland.keys.min].min
-      finish_date = [england.keys.max, scotland.keys.max, wales.keys.max, northern_ireland.keys.max].max
-
-      data = CSV::Table.new([], headers: ['Date', 'England', 'Scotland', 'Wales', 'Northern', 'Grand Total'])  
-      (start_date..finish_date).each do |date|
-        data.push [
-          date,
-          england.dig(date, :deaths),
-          scotland.dig(date, :deaths),
-          wales.dig(date, :deaths),
-          northern_ireland.dig(date, :deaths),
-          uk.dig(date, :deaths),
-        ]
-      end
-
-      render data, filename:  "uk_deaths_per_#{NUMBERS_PER}.csv", **options
+      headers = ['Date', 'England', 'Scotland', 'Wales', 'Northern', 'Grand Total']  
+      data = Make::Data.uk_deaths
+      render headers, data, filename:  "uk_deaths_per_#{NUMBERS_PER}.csv", **options
     end
 
     class << self
       private
 
-      def render(data, target: :file, filename: nil)
+      def render(headers, data, target: :file, filename: nil)
+        csv = [headers, *data].map(&:to_csv).join
+
         case target
         when :file
           fail ArgumentError, 'filename must be passed when target is :file' unless filename
-          File.write(File.join(PUBLIC_DIR, filename), data.to_csv)
+          File.write File.join(PUBLIC_DIR, filename), csv
         when :screen
-          puts data.to_csv
+          puts csv
         else
           fail "#{target.inspect} is not a valid target."
         end

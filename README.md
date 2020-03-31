@@ -22,6 +22,7 @@ The files are organised as such:
 The app is organised as such:
 - UkCovid19Data - makes the UK data available to the rest of the app
 - ScotlandCovid19Data - makes the Scotland data available to the rest of the app
+- Make::Data - arranges the data from UkCovid19Data and ScotlandCovid19Data for the other Make classes
 - Make::Csv - makes the csv files, saving them to the public dir
 - Make::Plot - makes the plots, saving them to the public dir or using gnuplot to display on screen
 - Make::Html - generates the index
