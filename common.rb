@@ -32,7 +32,7 @@ $logger.formatter = proc do |severity, datetime, progname, message|
   end
   "#{datetime} #{severity} #{progname}: #{message.strip}\n"
 end
-$logger.level = ENV['LOG_LEVEL']&.to_i || Logger::DEBUG
+$logger.level = ENV['LOG_LEVEL']&.to_i || ENV['RACK_ENV'].eql?('development') ? Logger::DEBUG : Logger::INFO
 STDOUT.sync = true
 
 $current_data_sha = ''
