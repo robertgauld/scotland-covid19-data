@@ -36,7 +36,7 @@ module Make
                   .map { |record| [record['Date'], record['Today Negative'], record['Today Positive']] }
                   .transpose
 
-      basic_plot(**options, filename: 'daily_tests.png') do |plot|
+      basic_plot(**options, filename: 'scotland_daily_tests.png') do |plot|
         plot.title 'Scottish COVID-19 Daily Tests'
 
         plot.add_data Gnuplot::DataSet.new([data[0], data[2]]) { |ds|
@@ -61,7 +61,7 @@ module Make
                   .map { |record| [record['Date'], record['Total Negative'], record['Total Positive'] + record['Total Negative']] }
                   .transpose
 
-      basic_plot(**options, filename: 'cumulative_tests.png') do |plot|
+      basic_plot(**options, filename: 'scotland_cumulative_tests.png') do |plot|
         plot.title 'Scottish COVID-19 Cumulative Tests'
 
         plot.add_data Gnuplot::DataSet.new([data[0], data[2]]) { |ds|
@@ -132,7 +132,7 @@ module Make
                                          .transpose
 
 
-      basic_plot(**options, filename: 'icu_deceased.png') do |plot|
+      basic_plot(**options, filename: 'scotland_icu_deceased.png') do |plot|
         plot.title 'Scottish COVID-19 Cumulative Deceased and Intensive Care Use'
         plot.logscale 'y 10'
 
