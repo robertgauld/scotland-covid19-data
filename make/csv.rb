@@ -28,7 +28,7 @@ module Make
       scotland_tests **options
     end
 
-    def self.scotland_cases
+    def self.scotland_cases(**options)
       $logger.info 'Writing cases CSV for Scotland.'
       health_boards = ScotlandCovid19Data.health_boards
       cases = ScotlandCovid19Data.cases
@@ -37,10 +37,10 @@ module Make
       cases.keys.sort.each do |date|
         data.push [date, *cases.fetch(date).values_at(*health_boards, 'Grand Total')]
       end
-      File.write(File.join(PUBLIC_DIR, "scotland_cases_per_#{NUMBERS_PER}.csv"), data.to_csv)
+      render data, filename:  "scotland_cases_per_#{NUMBERS_PER}.csv", **options
     end
 
-    def self.scotland_deaths
+    def self.scotland_deaths(**options)
       $logger.info 'Writing deaths CSV for Scotland.'
       health_boards = ScotlandCovid19Data.health_boards
       deaths = ScotlandCovid19Data.deaths
@@ -49,7 +49,7 @@ module Make
       deaths.keys.sort.each do |date|
         data.push [date, *deaths.fetch(date).values_at(*health_boards, 'Grand Total')]
       end
-      File.write(File.join(PUBLIC_DIR, "scotland_deaths_per_#{NUMBERS_PER}.csv"), data.to_csv)
+      render data, filename:  "scotland_deaths_per_#{NUMBERS_PER}.csv", **options
     end
 
     def self.scotland_icu_deceased(**options)
@@ -64,7 +64,7 @@ module Make
       (earliest_date..latest_date).each do |date|
         data.push [date, intensive_care[date], deceased[date]]
       end
-      File.write(File.join(PUBLIC_DIR, 'scotland_icu_deceased.csv'), data.to_csv)
+      render data, filename:  'scotland_icu_deceased.csv', **options
     end
 
     def self.scotland_tests(**options)
@@ -76,10 +76,10 @@ module Make
       tests.values.sort_by { |record| record['Date'] }.each do |record|
         data.push record.values_at('Date', 'Today Positive', 'Today Negative', 'Total Positive', 'Total Negative')
       end
-      File.write(File.join(PUBLIC_DIR, 'scotland_tests.csv'), data.to_csv)
+      render data, filename:  'scotland_tests.csv', **options
     end
 
-    def self.health_board(name)
+    def self.health_board(name, **options)
       fail "#{name.inspect} is not a known health board" unless ScotlandCovid19Data.health_boards.include?(name)
       $logger.info "Writing health board CSV for #{name}."
       cases = ScotlandCovid19Data.cases
@@ -96,13 +96,10 @@ module Make
         ]
       end
 
-      File.write(
-        File.join(PUBLIC_DIR, "#{name.downcase.gsub(' ', '_')}_per_#{NUMBERS_PER}.csv"),
-        data.to_csv
-      )
+      render data, filename:  "#{name.downcase.gsub(' ', '_')}_per_#{NUMBERS_PER}.csv", **options
     end
 
-    def self.country(name)
+    def self.country(name, **options)
       unless ['England', 'Scotland', 'Wales', 'Northern Ireland'].include?(name)
         fail "#{name.inspect} is not a known country"
       end
@@ -131,10 +128,10 @@ module Make
         ]
       end
 
-      File.write(File.join(PUBLIC_DIR, "#{name.downcase.gsub(' ', '_')}_per_#{NUMBERS_PER}.csv"), data.to_csv)
+      render data, filename:  "#{name.downcase.gsub(' ', '_')}_per_#{NUMBERS_PER}.csv", **options
     end
 
-    def self.uk_cases
+    def self.uk_cases(**options)
       $logger.info 'Writing cases CSV for UK.'
       uk = UkCovid19Data.uk
       england = UkCovid19Data.england
@@ -156,10 +153,10 @@ module Make
         ]
       end
 
-      File.write(File.join(PUBLIC_DIR, "uk_cases_per_#{NUMBERS_PER}.csv"), data.to_csv)
+      render data, filename:  "uk_cases_per_#{NUMBERS_PER}.csv", **options
     end
 
-    def self.uk_deaths
+    def self.uk_deaths(**options)
       $logger.info 'Writing deaths CSV for UK.'
       uk = UkCovid19Data.uk
       england = UkCovid19Data.england
@@ -181,19 +178,24 @@ module Make
         ]
       end
 
-      File.write(File.join(PUBLIC_DIR, "uk_deaths_per_#{NUMBERS_PER}.csv"), data.to_csv)
+      render data, filename:  "uk_deaths_per_#{NUMBERS_PER}.csv", **options
     end
 
-    def self.uk_deaths_OLD
-      $logger.info 'Writing deaths CSV for UK.'
-      health_boards = ScotlandCovid19Data.health_boards
-      deaths = ScotlandCovid19Data.deaths
+    class << self
+      private
 
-      data = CSV::Table.new([], headers: ['Date', *health_boards, 'Grand Total'])  
-      deaths.keys.sort.each do |date|
-        data.push [date, *deaths.fetch(date).values_at(*health_boards, 'Grand Total')]
+      def render(data, target: :file, filename: nil)
+        case target
+        when :file
+          fail ArgumentError, 'filename must be passed when target is :file' unless filename
+          File.write(File.join(PUBLIC_DIR, filename), data.to_csv)
+        when :screen
+          puts data.to_csv
+        else
+          fail "#{target.inspect} is not a valid target."
+        end
+        nil
       end
-      File.write(File.join(PUBLIC_DIR, "uk_deaths_per_#{NUMBERS_PER}.csv"), data.to_csv)
     end
   end
 end
