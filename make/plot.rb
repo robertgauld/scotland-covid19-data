@@ -78,7 +78,7 @@ module Make
       data = Make::Data.scotland_cases_by_health_board.transpose
 
       basic_plot(**options, filename: "scotland_cases_per_#{NUMBERS_PER}.png") do |plot|
-        plot.title 'Scottish Health Board COVID-19 Cases'
+        plot.title "Scottish Health Board COVID-19 Cases (per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')})"
         plot.logscale 'y 10'
 
         data[1..-2].each.with_index do |this_data, index|
@@ -97,7 +97,7 @@ module Make
       data = Make::Data.scotland_deaths_by_health_board.transpose
 
       basic_plot(**options, filename: "scotland_deaths_per_#{NUMBERS_PER}.png") do |plot|
-        plot.title 'Scottish Health Board COVID-19 Deaths'
+        plot.title "Scottish Health Board COVID-19 Deaths (per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')})"
         plot.logscale 'y 10'
 
         data[1..-2].each.with_index do |this_data, index|
@@ -211,7 +211,7 @@ module Make
       data = Make::Data.uk_cases.transpose
 
       basic_plot(**options, filename: "uk_cases_per_#{NUMBERS_PER}.png") do |plot|
-        plot.title 'UK COVID-19 Cases'
+        plot.title "UK COVID-19 Cases (per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')})"
         plot.logscale 'y 10'
 
         plot.add_data Gnuplot::DataSet.new([data[0], data[1]]) { |ds|
@@ -253,7 +253,7 @@ module Make
       data = Make::Data.uk_deaths.transpose
 
       basic_plot(**options, filename: "uk_deaths_per_#{NUMBERS_PER}.png") do |plot|
-        plot.title 'UK COVID-19 Deaths'
+        plot.title "UK COVID-19 Deaths (per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')})"
         plot.logscale 'y 10'
 
         plot.add_data Gnuplot::DataSet.new([data[0], data[1]]) { |ds|
