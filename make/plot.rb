@@ -30,20 +30,22 @@ module Make
 
     def self.scotland_daily_tests(**options)
       $logger.info 'Plotting daily test data for Scotland.'
-      data = Make::Data.scotland_tests.transpose
+      data = Make::Data.scotland_tests
+                       .map { |record| record.push record[1] + record[2] }
+                       .transpose
 
       basic_plot(**options, filename: 'scotland_daily_tests.png') do |plot|
         plot.title 'Scottish COVID-19 Daily Tests'
 
-        plot.add_data Gnuplot::DataSet.new([data[0], data[1]]) { |ds|
+        plot.add_data Gnuplot::DataSet.new([data[0], data[5]]) { |ds|
           ds.using = '1:2'
-          ds.with = 'line'
+          ds.with = 'filledcurve x1'
           ds.title = 'Positive'
         }
 
         plot.add_data Gnuplot::DataSet.new([data[0], data[2]]) { |ds|
           ds.using = '1:2'
-          ds.with = 'line'
+          ds.with = 'filledcurve x1'
           ds.title = 'Negative'
         }
       end
