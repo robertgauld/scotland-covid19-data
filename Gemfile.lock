@@ -15,6 +15,7 @@ GEM
     raabro (1.1.6)
     rack (2.2.2)
     rollbar (2.24.0)
+    rubyzip (2.3.0)
     rufus-scheduler (3.6.0)
       fugit (~> 1.1, >= 1.1.6)
     temple (0.8.2)
@@ -32,6 +33,7 @@ DEPENDENCIES
   haml (~> 5.1)
   rack (~> 2.2)
   rollbar (~> 2.24)
+  rubyzip (~> 2.3)
   rufus-scheduler (~> 3.6)
   zeitwerk (~> 2.3)
 

@@ -51,5 +51,7 @@ def update
   Make::Csv.all
   Make::Plot.all
 
+  Make::Zip.all
+
   nil
 end

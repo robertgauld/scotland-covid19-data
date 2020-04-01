@@ -30,6 +30,8 @@
       - if updating
         %span.highlight
           The data is currently being updated.
+      - unless hide_zip_download_link
+        %a{href: 'scotland-covid19-data.zip'} Download the current site and raw data.
 
     #links{style: 'padding-left: 15%; padding-right: 15%;'}
       %div{style: 'display: inline-block; min-width: 16em;'}
@@ -49,69 +51,69 @@
       %a{name: 'uk'}
       %h2 Whole of the UK
       .chart
-        %a{href: "/uk_cases_per_#{numbers_per}.png"}
-          %img{src: "/uk_cases_per_#{numbers_per}.png", width: 450, height: 300}
+        %a{href: "uk_cases_per_#{numbers_per}.png"}
+          %img{src: "uk_cases_per_#{numbers_per}.png", width: 450, height: 300}
         %br
-        %a{href: "/uk_cases_per_#{numbers_per}.csv"} Download data
+        %a{href: "uk_cases_per_#{numbers_per}.csv"} Download data
       .chart
-        %a{href: "/uk_deaths_per_#{numbers_per}.png"}
-          %img{src: "/uk_deaths_per_#{numbers_per}.png", width: 450, height: 300}
+        %a{href: "uk_deaths_per_#{numbers_per}.png"}
+          %img{src: "uk_deaths_per_#{numbers_per}.png", width: 450, height: 300}
         %br
-        %a{href: "/uk_deaths_per_#{numbers_per}.csv"} Download data
+        %a{href: "uk_deaths_per_#{numbers_per}.csv"} Download data
       .chart
-        %a{href: '/england_vs_uk.png'}
-          %img{src: '/england_vs_uk.png', width: 450, height: 300}
+        %a{href: 'england_vs_uk.png'}
+          %img{src: 'england_vs_uk.png', width: 450, height: 300}
         %br
-        %a{href: "/england_per_#{numbers_per}.csv"} Download data
+        %a{href: "england_per_#{numbers_per}.csv"} Download data
       .chart
-        %a{href: '/scotland_vs_uk.png'}
-          %img{src: '/scotland_vs_uk.png', width: 450, height: 300}
+        %a{href: 'scotland_vs_uk.png'}
+          %img{src: 'scotland_vs_uk.png', width: 450, height: 300}
         %br
-        %a{href: "/scotland_per_#{numbers_per}.csv"} Download data
+        %a{href: "scotland_per_#{numbers_per}.csv"} Download data
       .chart
-        %a{href: '/wales_vs_uk.png'}
-          %img{src: '/wales_vs_uk.png', width: 450, height: 300}
+        %a{href: 'wales_vs_uk.png'}
+          %img{src: 'wales_vs_uk.png', width: 450, height: 300}
         %br
-        %a{href: "/wales_per_#{numbers_per}.csv"} Download data
+        %a{href: "wales_per_#{numbers_per}.csv"} Download data
       .chart
-        %a{href: '/northern_ireland_vs_uk.png'}
-          %img{src: '/northern_ireland_vs_uk.png', width: 450, height: 300}
+        %a{href: 'northern_ireland_vs_uk.png'}
+          %img{src: 'northern_ireland_vs_uk.png', width: 450, height: 300}
         %br
-        %a{href: "/northern_ireland_per_#{numbers_per}.csv"} Download data
+        %a{href: "northern_ireland_per_#{numbers_per}.csv"} Download data
 
     #scotland{class: 'chart_group'}
       %a{name: 'scotland'}
       %h2 Whole of Scotland
       .chart
-        %a{href: '/scotland_daily_tests.png'}
-          %img{src: '/scotland_daily_tests.png', width: 450, height: 300}
+        %a{href: 'scotland_daily_tests.png'}
+          %img{src: 'scotland_daily_tests.png', width: 450, height: 300}
         %br
-        %a{href: '/scotland_tests.csv'} Download data
+        %a{href: 'scotland_tests.csv'} Download data
       .chart
-        %a{href: '/scotland_cumulative_tests.png'}
-          %img{src: '/scotland_cumulative_tests.png', width: 450, height: 300}
+        %a{href: 'scotland_cumulative_tests.png'}
+          %img{src: 'scotland_cumulative_tests.png', width: 450, height: 300}
         %br
-        %a{href: '/scotland_tests.csv'} Download data
+        %a{href: 'scotland_tests.csv'} Download data
       .chart
-        %a{href: "/scotland_cases_per_#{numbers_per}.png"}
-          %img{src: "/scotland_cases_per_#{numbers_per}.png", width: 450, height: 300}
+        %a{href: "scotland_cases_per_#{numbers_per}.png"}
+          %img{src: "scotland_cases_per_#{numbers_per}.png", width: 450, height: 300}
         %br
-        %a{href: "/scotland_cases_per_#{numbers_per}.csv"} Download data
+        %a{href: "scotland_cases_per_#{numbers_per}.csv"} Download data
       .chart
-        %a{href: "/scotland_deaths_per_#{numbers_per}.png"}
-          %img{src: "/scotland_deaths_per_#{numbers_per}.png", width: 450, height: 300}
+        %a{href: "scotland_deaths_per_#{numbers_per}.png"}
+          %img{src: "scotland_deaths_per_#{numbers_per}.png", width: 450, height: 300}
         %br
-        %a{href: "/scotland_deaths_per_#{numbers_per}.csv"} Download data
+        %a{href: "scotland_deaths_per_#{numbers_per}.csv"} Download data
       .chart
-        %a{href: '/scotland_icu_deceased.png'}
-          %img{src: '/scotland_icu_deceased.png', width: 450, height: 300}
+        %a{href: 'scotland_icu_deceased.png'}
+          %img{src: 'scotland_icu_deceased.png', width: 450, height: 300}
         %br
-        %a{href: '/scotland_icu_deceased.csv'} Download data
+        %a{href: 'scotland_icu_deceased.csv'} Download data
       .chart
-        %a{href: '/scotland_vs_uk.png'}
-          %img{src: '/scotland_vs_uk.png', width: 450, height: 300}
+        %a{href: 'scotland_vs_uk.png'}
+          %img{src: 'scotland_vs_uk.png', width: 450, height: 300}
         %br
-        %a{href: "/scotland_per_#{numbers_per}.csv"} Download data
+        %a{href: "scotland_per_#{numbers_per}.csv"} Download data
 
     %hr
 
@@ -120,11 +122,11 @@
       %div{id: health_board_link, class: 'health_board chart_group'}
         %a{name: health_board_link}
         %h2=health_board
-        %a{href: "/#{health_board_link}_per_#{numbers_per}.csv"} Download data
+        %a{href: "#{health_board_link}_per_#{numbers_per}.csv"} Download data
         %br
         .chart
-          %a{href: "/#{health_board_link}_per_#{numbers_per}.png"}
-            %img{src: "/#{health_board_link}_per_#{numbers_per}.png", width: 450, height: 300}
+          %a{href: "#{health_board_link}_per_#{numbers_per}.png"}
+            %img{src: "#{health_board_link}_per_#{numbers_per}.png", width: 450, height: 300}
         .chart
-          %a{href: "/#{health_board_link}_vs_scotland.png"}
-            %img{src: "/#{health_board_link}_vs_scotland.png", width: 450, height: 300}
+          %a{href: "#{health_board_link}_vs_scotland.png"}
+            %img{src: "#{health_board_link}_vs_scotland.png", width: 450, height: 300}
