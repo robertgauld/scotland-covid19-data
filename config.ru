@@ -10,7 +10,12 @@ Rollbar.configure do |config|
   config.disable_rack_monkey_patch = true
 end
 
-update
+begin
+  update
+rescue StandardError => e
+  Rollbar.error e
+  raise e
+end
 
 $logger.info 'Starting Rufus Scheduler'
 $scheduler = Rufus::Scheduler.new
