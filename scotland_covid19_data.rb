@@ -129,7 +129,10 @@ class ScotlandCovid19Data
       date_converter = ->(value, field) { field.header.eql?('Date') ? Date.parse(value) : value }
       number_converter = ->(value, field) { !field.header.eql?('Date') ? value.eql?('X') ? nil : value.to_i / health_board_scale.fetch(field.header) : value }
 
-      @@cases = CSV.read(File.join(DATA_DIR, HEALTH_BOARD_CASES_FILE), headers: true, converters: [number_converter, date_converter])
+      file_contents = File.read(File.join(DATA_DIR, HEALTH_BOARD_CASES_FILE))
+                          .gsub("15-Apr-2020,416,208,199,397,367,335,1575,168,822,989,5,45,826,6,6358\r\n", '')
+                          .gsub("\r", '')
+      @@cases = CSV.parse(file_contents, headers: true, converters: [number_converter, date_converter])
                    .map { |record| [record['Date'], [*health_boards, 'Grand Total'].zip(record.values_at(*health_boards, 'Grand Total')).to_h] }
                    .to_h
       $logger.debug "Read cases data for #{@@cases.keys.sort.values_at(0, -1).map(&:to_s).join(' to ')}."
@@ -144,7 +147,9 @@ class ScotlandCovid19Data
       date_converter = ->(value, field) { field.header.eql?('Date') ? Date.parse(value) : value }
       number_converter = ->(value, field) { !field.header.eql?('Date') ? value.eql?('X') ? nil : value.to_i / health_board_scale.fetch(field.header) : value }
 
-      @@deaths = CSV.read(File.join(DATA_DIR, HEALTH_BOARD_DEATHS_FILE), headers: true, converters: [number_converter, date_converter])
+      file_contents = File.read(File.join(DATA_DIR, HEALTH_BOARD_DEATHS_FILE))
+                          .gsub("\r", '')
+      @@deaths = CSV.parse(file_contents, headers: true, converters: [number_converter, date_converter])
                     .map { |record| [record['Date'], [*health_boards, 'Grand Total'].zip(record.values_at(*health_boards, 'Grand Total')).to_h] }
                     .to_h
       $logger.debug "Read deaths data for #{@@deaths.keys.sort.values_at(0, -1).map(&:to_s).join(' to ')}."
@@ -156,7 +161,9 @@ class ScotlandCovid19Data
         download(only: INTENSIVE_CARE_FILE)
       end
 
-      @@intensive_care = CSV.read(File.join(DATA_DIR, INTENSIVE_CARE_FILE), headers: true)
+      file_contents = File.read(File.join(DATA_DIR, INTENSIVE_CARE_FILE))
+                          .gsub("\r", '')
+      @@intensive_care = CSV.parse(file_contents, headers: true)
                             .map { |record| [Date.parse(record[0]), record[1]&.to_i] }
                             .to_h
       $logger.debug "Read intensive care data for #{@@intensive_care.keys.sort.values_at(0, -1).map(&:to_s).join(' to ')}."
