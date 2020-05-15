@@ -1,5 +1,10 @@
 data/*
-!data/.gitkeep
+!data/HB_Populations.csv
+!data/intensive_care.csv
+!data/regional_cases.csv
+!data/regional_deaths.csv
+!data/scot_test_positive_deceased.csv
+!data/scot_tests.csv
 public/*
 !public/.gitkeep
 !public/index.css

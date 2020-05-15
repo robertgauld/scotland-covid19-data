@@ -24,22 +24,30 @@ module Make
     def self.scotland(**options)
       scotland_cases_by_health_board **options
       scotland_deaths_by_health_board **options
+      scotland_icus **options
       scotland_icu_deceased **options
       scotland_tests **options
     end
 
     def self.scotland_cases_by_health_board(**options)
       $logger.info 'Writing cases CSV for Scotland.'
-      headers = ['Date', *ScotlandCovid19Data.health_boards, 'Grand Total']
+      headers = ['Date', *ScotlandCovid19Data.health_boards]
       data = Make::Data.scotland_cases_by_health_board
       render headers, data, filename:  "scotland_cases_per_#{NUMBERS_PER}.csv", **options
     end
 
     def self.scotland_deaths_by_health_board(**options)
       $logger.info 'Writing deaths CSV for Scotland.'
-      headers = ['Date', *ScotlandCovid19Data.health_boards, 'Grand Total']
+      headers = ['Date', *ScotlandCovid19Data.health_boards]
       data = Make::Data.scotland_deaths_by_health_board
       render headers, data, filename:  "scotland_deaths_per_#{NUMBERS_PER}.csv", **options
+    end
+
+    def self.scotland_icus(**options)
+      $logger.info 'Writing ICU Beds CSV for Scotland.'
+      headers = ['Date', *ScotlandCovid19Data.health_boards, 'The Golden Jubilee National Hospital']
+      data = Make::Data.scotland_icus
+      render headers, data, filename:  'scotland_icus.csv', **options
     end
 
     def self.scotland_icu_deceased(**options)

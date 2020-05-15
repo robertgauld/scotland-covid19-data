@@ -24,6 +24,7 @@ module Make
       scotland_cumulative_tests **options
       scotland_cases_by_health_board **options
       scotland_deaths_by_health_board **options
+      scotland_icus **options
       scotland_icu_deceased **options
       country_comparison 'Scotland', **options
     end
@@ -101,6 +102,24 @@ module Make
       basic_plot(**options, filename: "scotland_deaths_per_#{NUMBERS_PER}.png") do |plot|
         plot.title "Scottish Health Board COVID-19 Deaths (per #{NUMBERS_PER.to_s.gsub(/\B(?=(...)*\b)/, ',')})"
         plot.logscale 'y 10'
+
+        data[1..-2].each.with_index do |this_data, index|
+          plot.add_data Gnuplot::DataSet.new([data[0], this_data]) { |ds|
+            ds.using = '1:2'
+            ds.with = 'line'
+            ds.title = health_boards[index]
+          }
+        end
+      end
+    end
+
+    def self.scotland_icus(**options)
+      $logger.info 'Plotting icu beds by health board data for Scotland.'
+      health_boards = [*ScotlandCovid19Data.health_boards, 'The Golden Jubilee National Hospital']
+      data = Make::Data.scotland_icus.transpose
+
+      basic_plot(**options, filename: 'scotland_icus.png') do |plot|
+        plot.title 'Scottish Health Board COVID-19 ICU Beds'
 
         data[1..-2].each.with_index do |this_data, index|
           plot.add_data Gnuplot::DataSet.new([data[0], this_data]) { |ds|

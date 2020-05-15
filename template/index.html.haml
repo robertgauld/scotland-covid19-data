@@ -5,21 +5,28 @@
   %body
     %h1 Scotland's Covid-19 Data
     %p
-      This site hastily throuwn together by
-      %a{href: 'https://twitter.com/robertgauld'}@RobertGauld
-      , the code is available at
-      %a{href: 'https://github.com/robertgauld/scotland-covid19-data'}https://github.com/robertgauld/scotland-covid19-data
+      This site hastily thrown together by
+      = succeed ',' do
+        %a{href: 'https://twitter.com/robertgauld'}>@RobertGauld
+      the code is available at
+      = succeed '.' do
+        %a{href: 'https://github.com/robertgauld/scotland-covid19-data'}https://github.com/robertgauld/scotland-covid19-data
     %p
       Thanks to
-      %a{href: 'https://twitter.com/watty62'} @watty62
+      %a{href: 'https://twitter.com/watty62'}@watty62
       for collecting and preprocessing the Scotland data at
-      %a{href: 'https://github.com/watty62/Scot_covid19'} https://github.com/watty62/Scot_covid19
+      = succeed ',' do
+        %a{href: 'https://github.com/watty62/Scot_covid19'}>https://github.com/watty62/Scot_covid19
+      thanks to his further work this data is now available from the Scottish Government at
+      = succeed '.' do
+        %a{href: 'https://github.com/DataScienceScotland/COVID-19-Management-Information'}>https://github.com/DataScienceScotland/COVID-19-Management-Information
       Data upto #{upto_scotland.strftime('%A %-d %B %Y')} is currently available and displayed.
       %br
       Thanks to
-      %a{href: 'https://twitter.com/tom_e_white'} @tom_e_white
+      %a{href: 'https://twitter.com/tom_e_white'}@tom_e_white
       for collecting and preprocessing the UK data at
-      %a{href: 'https://github.com/tomwhite/covid-19-uk-data'} https://github.com/tomwhite/covid-19-uk-data
+      = succeed '.' do
+        %a{href: 'https://github.com/tomwhite/covid-19-uk-data'}>https://github.com/tomwhite/covid-19-uk-data
       Data upto #{upto_uk.strftime('%A %-d %B %Y')} is currently available and displayed.
       - if updating
         %span.highlight
@@ -105,15 +112,15 @@
         %br
         %a{href: "scotland_deaths_per_#{numbers_per}.csv"} Download data
       .chart
+        %a{href: "scotland_icus.png"}
+          %img{src: "scotland_icus.png", width: 450, height: 300}
+        %br
+        %a{href: "scotland_icus.csv"} Download data
+      .chart
         %a{href: 'scotland_icu_deceased.png'}
           %img{src: 'scotland_icu_deceased.png', width: 450, height: 300}
         %br
         %a{href: 'scotland_icu_deceased.csv'} Download data
-      .chart
-        %a{href: 'scotland_vs_uk.png'}
-          %img{src: 'scotland_vs_uk.png', width: 450, height: 300}
-        %br
-        %a{href: "scotland_per_#{numbers_per}.csv"} Download data
 
     %hr
 

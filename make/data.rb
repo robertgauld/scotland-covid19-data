@@ -20,6 +20,15 @@ module Make
       end
     end
 
+    def self.scotland_icus
+      health_boards = [*ScotlandCovid19Data.health_boards, 'The Golden Jubilee National Hospital']
+      icus = ScotlandCovid19Data.intensive_cares
+
+      icus.keys.sort.map do |date|
+        [date, *icus.fetch(date).values_at(*health_boards, 'Grand Total')]
+      end
+    end
+
     def self.scotland_icu_deceased
       intensive_care = ScotlandCovid19Data.intensive_care
       deceased = ScotlandCovid19Data.deceased
