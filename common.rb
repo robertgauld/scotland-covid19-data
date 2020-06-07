@@ -35,22 +35,17 @@ end
 $logger.level = ENV['LOG_LEVEL']&.to_i || ENV['RACK_ENV'].eql?('development') ? Logger::DEBUG : Logger::INFO
 STDOUT.sync = true
 
-$current_data_sha = ''
-
 if ENV['DYNO'] && !File.exist?('/app/.apt/usr/bin/gnuplot')
   FileUtils.link '/app/.apt/usr/bin/gnuplot-qt', '/app/.apt/usr/bin/gnuplot'
 end
 
 def update
-  return unless ScotlandCovid19Data.update_available? || 
-                UkCovid19Data.update_available?
-
-  ScotlandCovid19Data.update
-  UkCovid19Data.update
+  ScotlandCovid19Data.update if ScotlandCovid19Data.update_available?
+  UkCovid19Data.update if UkCovid19Data.update_available?
+  GoogleMobilityData.update if GoogleMobilityData.update_available?
 
   Make::Csv.all
   Make::Plot.all
-
   Make::Zip.all
 
   nil

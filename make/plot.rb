@@ -28,6 +28,8 @@ module Make
       scotland_icus **options
       scotland_icu_deceased **options
       country_comparison 'Scotland', **options
+      mobility 'Scotland', **options
+      mobility_comparison 'Scotland', **options
     end
 
     def self.scotland_daily_tests(**options)
@@ -274,6 +276,7 @@ module Make
       country_comparison 'Scotland', **options
       country_comparison 'Wales', **options
       country_comparison 'Northern Ireland', **options
+      mobility 'UK', **options
     end
 
     def self.uk_total_cases_by_country(**options)
@@ -564,10 +567,70 @@ module Make
       end
     end
 
+    def self.mobility(region, **options)
+      $logger.info "Plotting #{region} mobility data."
+      titles = ['Retail \& recreation', 'Grocery \& pharmacy', 'Parks', 'Transit stations', 'Workplaces', 'Residential']
+      data = Make::Data.mobility[region].transpose
+
+      basic_plot(**options, filename: "mobility_#{region.downcase}.png", yrange: nil) do |plot|
+        plot.title "Mobility in #{region}"
+        plot.ylabel 'Usage compared to pre pandemic levels (%)'
+
+        plot.add_data Gnuplot::DataSet.new('0') { |ds|
+          ds.linewidth = 1
+          ds.title = ''
+          ds.linecolor = 'rgb "black"'
+        }
+
+        titles.each_with_index do |title, i|
+          plot.add_data Gnuplot::DataSet.new([data[0], data[i+1]]) { |ds|
+            ds.using = '1:2'
+            ds.with = 'line'
+            ds.title = title
+            ds.linewidth = 2
+          }
+        end
+      end
+    end
+
+    def self.mobility_comparison(region, **options)
+      $logger.info "Plotting #{region} vs UK mobility data."
+      titles = ['Retail \& recreation', 'Grocery \& pharmacy', 'Parks', 'Transit stations', 'Workplaces', 'Residential']
+      data_uk = Make::Data.mobility_uk.group_by(&:first)
+      data_reg = Make::Data.mobility[region]
+      data = []
+      data_reg.map do |date, *reg|
+        next unless data_uk.key?(date)
+
+        uk = data_uk[date].first[1..-1]
+        data.push [date, (reg[0]&.-(uk[0].to_i)), (reg[1]&.-(uk[1].to_i)), (reg[2]&.-(uk[2].to_i)), (reg[3]&.-(uk[3].to_i)), (reg[4]&.-(uk[4].to_i)), (reg[5]&.-(uk[5].to_i))]
+      end
+      data = data.transpose
+
+      basic_plot(**options, filename: "mobility_#{region.downcase}_vs_uk.png", yrange: nil) do |plot|
+        plot.title "Mobility in #{region} vs the UK"
+
+        plot.add_data Gnuplot::DataSet.new('0') { |ds|
+          ds.linewidth = 1
+          ds.title = ''
+          ds.linecolor = 'rgb "black"'
+        }
+
+        titles.each_with_index do |title, i|
+          plot.add_data Gnuplot::DataSet.new([data[0], data[i+1]]) { |ds|
+            ds.using = '1:2'
+            ds.with = 'line'
+            ds.title = title
+            ds.linewidth = 2
+          }
+        end
+      end
+    end
+
     class << self
       private
 
-      def basic_plot(target: :file, filename: nil)
+      def basic_plot(target: :file, filename: nil, yrange: '[0:]')
         Gnuplot.open do |gp|
           Gnuplot::Plot.new(gp) do |plot|
             case target
@@ -586,7 +649,7 @@ module Make
             plot.format 'x \'%d/%m/%y\''
             plot.xrange "['#{Date.new(2020, 2, 17)}':'#{Date.today}']"
 
-            plot.yrange '[0:]'
+            plot.yrange yrange if yrange
 
             plot.key 'outside center bottom horizontal'
             plot.grid

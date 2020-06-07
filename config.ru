@@ -11,7 +11,7 @@ Rollbar.configure do |config|
 end
 
 begin
-  update
+#  update
 rescue StandardError => e
   Rollbar.error e
   raise e
@@ -34,10 +34,11 @@ def $scheduler.on_error(job, error)
   )
 end
 
-$update_job = $scheduler.schedule_every(3_600, overlap: false, timeout: 120) do
+$update_job = $scheduler.schedule_every(3_600, overlap: false, timeout: 300) do
   Thread.current.thread_variable_set(:logger_label, 'Background update')
   update
 end
+$update_job.trigger_off_schedule
 
 class Rack::CommonLogger
   def log(env, status, header, began_at)

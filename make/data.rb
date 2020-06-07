@@ -148,5 +148,17 @@ module Make
       end
       data
     end
+
+    def self.mobility
+      GoogleMobilityData.data
+    end
+
+    def self.mobility_uk
+      GoogleMobilityData.data['UK']
+    end
+
+    def self.mobility_scotland
+      GoogleMobilityData.data['Scotland']
+    end
   end
 end

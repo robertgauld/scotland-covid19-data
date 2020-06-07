@@ -28,9 +28,12 @@
       = succeed '.' do
         %a{href: 'https://github.com/tomwhite/covid-19-uk-data'}>https://github.com/tomwhite/covid-19-uk-data
       Data upto #{upto_uk.strftime('%A %-d %B %Y')} is currently available and displayed.
-      - if updating
-        %span.highlight
-          The data is currently being updated.
+      %br
+      Also includes a Google dataset: Google LLC "Google COVID-19 Community Mobility Reports".
+      %a{href: 'https://www.google.com/covid19/mobility/'}https://www.google.com/covid19/mobility/
+      Accessed
+      = succeed '.' do
+        = GoogleMobilityData.accessed_at&.strftime('%Y-%m-%d')
     %p
       On start up and every hour thereafter this site checks for new data and if 
       new data is available it regenerates itself.
@@ -103,6 +106,9 @@
           %img{src: 'northern_ireland_vs_uk.png'}
         %br
         %a{href: "northern_ireland_per_#{numbers_per}.csv"} Download data
+      .chart
+        %a{href: 'mobility_uk.png'}
+          %img{src: 'mobility_uk.png'}
 
     #scotland{class: 'chart_group'}
       %a{name: 'scotland'}
@@ -140,6 +146,12 @@
           %img{src: 'scotland_icu_deceased.png'}
         %br
         %a{href: 'scotland_icu_deceased.csv'} Download data
+      .chart
+        %a{href: 'mobility_scotland.png'}
+          %img{src: 'mobility_scotland.png'}
+      .chart
+        %a{href: 'mobility_scotland_vs_uk.png'}
+          %img{src: 'mobility_scotland_vs_uk.png'}
 
     %hr
 
