@@ -102,8 +102,7 @@ module Make
       start_date = [england.keys.min, scotland.keys.min, wales.keys.min, northern_ireland.keys.min].min
       finish_date = [england.keys.max, scotland.keys.max, wales.keys.max, northern_ireland.keys.max].max
 
-      data = CSV::Table.new([], headers: ['Date', 'England', 'Scotland', 'Wales', 'Northern', 'Grand Total'])  
-      (start_date..finish_date).map do |date|
+      data = (start_date..finish_date).map do |date|
         [
           date,
           england.dig(date, :confirmed_cases),
@@ -113,6 +112,13 @@ module Make
           uk.dig(date, :confirmed_cases),
         ]
       end
+      data[0].push nil, nil, nil, nil, nil
+      data.each_cons(2) do |yesterday, today|
+        (1..5).each do |i|
+          today.push yesterday[i] && today[i] ? today[i] - yesterday[i] : nil
+        end
+      end
+      data
     end
 
     def self.uk_deaths
@@ -124,8 +130,7 @@ module Make
       start_date = [england.keys.min, scotland.keys.min, wales.keys.min, northern_ireland.keys.min].min
       finish_date = [england.keys.max, scotland.keys.max, wales.keys.max, northern_ireland.keys.max].max
 
-      data = CSV::Table.new([], headers: ['Date', 'England', 'Scotland', 'Wales', 'Northern', 'Grand Total'])  
-      (start_date..finish_date).map do |date|
+      data = (start_date..finish_date).map do |date|
         [
           date,
           england.dig(date, :deaths),
@@ -135,6 +140,13 @@ module Make
           uk.dig(date, :deaths),
         ]
       end
+      data[0].push nil, nil, nil, nil, nil
+      data.each_cons(2) do |yesterday, today|
+        (1..5).each do |i|
+          today.push yesterday[i] && today[i] ? today[i] - yesterday[i] : nil
+        end
+      end
+      data
     end
   end
 end

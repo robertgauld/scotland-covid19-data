@@ -58,15 +58,31 @@
       %a{name: 'uk'}
       %h2 Whole of the UK
       .chart
-        %a{href: "uk_cases_per_#{numbers_per}.png"}
-          %img{src: "uk_cases_per_#{numbers_per}.png", width: 450, height: 300}
+        %a{href: "uk_total_cases_per_#{numbers_per}.png"}
+          %img{src: "uk_total_cases_per_#{numbers_per}.png", width: 450, height: 300}
         %br
         %a{href: "uk_cases_per_#{numbers_per}.csv"} Download data
       .chart
-        %a{href: "uk_deaths_per_#{numbers_per}.png"}
-          %img{src: "uk_deaths_per_#{numbers_per}.png", width: 450, height: 300}
+        %a{href: "uk_total_deaths_per_#{numbers_per}.png"}
+          %img{src: "uk_total_deaths_per_#{numbers_per}.png", width: 450, height: 300}
         %br
         %a{href: "uk_deaths_per_#{numbers_per}.csv"} Download data
+      .chart
+        %a{href: "uk_daily_cases_per_#{numbers_per}.png"}
+          %img{src: "uk_daily_cases_per_#{numbers_per}.png", width: 450, height: 300}
+        %br
+        %a{href: "uk_cases_per_#{numbers_per}.csv"} Download data
+      .chart
+        %a{href: "uk_daily_deaths_per_#{numbers_per}.png"}
+          %img{src: "uk_daily_deaths_per_#{numbers_per}.png", width: 450, height: 300}
+        %br
+        %a{href: "uk_deaths_per_#{numbers_per}.csv"} Download data
+      .chart
+        %a{href: "uk_daily_cases_per_#{numbers_per}_averaged_7_days.png"}
+          %img{src: "uk_daily_cases_per_#{numbers_per}_averaged_7_days.png", width: 450, height: 300}
+      .chart
+        %a{href: "uk_daily_deaths_per_#{numbers_per}_averaged_7_days.png"}
+          %img{src: "uk_daily_deaths_per_#{numbers_per}_averaged_7_days.png", width: 450, height: 300}
       .chart
         %a{href: 'england_vs_uk.png'}
           %img{src: 'england_vs_uk.png', width: 450, height: 300}
@@ -102,13 +118,16 @@
         %br
         %a{href: 'scotland_tests.csv'} Download data
       .chart
-        %a{href: "scotland_cases_per_#{numbers_per}.png"}
-          %img{src: "scotland_cases_per_#{numbers_per}.png", width: 450, height: 300}
+        %a{href: "scotland_total_cases_per_#{numbers_per}.png"}
+          %img{src: "scotland_total_cases_per_#{numbers_per}.png", width: 450, height: 300}
         %br
         %a{href: "scotland_cases_per_#{numbers_per}.csv"} Download data
       .chart
-        %a{href: "scotland_deaths_per_#{numbers_per}.png"}
-          %img{src: "scotland_deaths_per_#{numbers_per}.png", width: 450, height: 300}
+        %a{href: "scotland_daily_cases_per_#{numbers_per}_averaged_7_days.png"}
+          %img{src: "scotland_daily_cases_per_#{numbers_per}_averaged_7_days.png", width: 450, height: 300}
+      -#.chart
+        %a{href: "scotland_total_deaths_per_#{numbers_per}.png"}
+          %img{src: "scotland_total_deaths_per_#{numbers_per}.png", width: 450, height: 300}
         %br
         %a{href: "scotland_deaths_per_#{numbers_per}.csv"} Download data
       .chart
