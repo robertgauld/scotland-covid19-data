@@ -15,9 +15,10 @@ span.highlight {
 }
 
 div.chart {
+  display:           inline-block;
   width:             45%;
   text-align:        center;
-  display:           inline-block;
+  vertical-align:    top;
   margin-bottom:     2em;
   page-break-inside: avoid;
 }
