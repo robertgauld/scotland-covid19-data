@@ -22,6 +22,10 @@ div.chart {
   margin-bottom:     2em;
   page-break-inside: avoid;
 }
+div.chart img {
+  width:             450;
+  height:            300;
+}
 
 div.chart_group {
   page-break-inside: avoid;
