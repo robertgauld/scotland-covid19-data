@@ -2,7 +2,7 @@
 
 module Make
   class Plot
-    PLOT_SIZE = '900,600'
+    PLOT_SIZE = '1280,800'
 
     def self.all(**options)
       uk **options
