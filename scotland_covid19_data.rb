@@ -133,8 +133,8 @@ class ScotlandCovid19Data
         download(only: HEALTH_BOARD_CASES_FILE)
       end
 
-      date_converter = ->(value, field) { field.header.eql?('Date') && value != 'Date' ? Date.parse(value) : value }
-      number_converter = ->(value, field) { !['Date', nil].include?(field.header) ? ['X', '*'].include?(value) ? nil : value.to_i / health_board_scale.fetch(field.header) : value }
+      date_converter = ->(value, field) { field.header.eql?('Date') && value != 'Date' ? (value.eql?('NA') ? nil : Date.parse(value)) : value }
+      number_converter = ->(value, field) { !['Date', nil].include?(field.header) ? ['X', '*', 'NA'].include?(value) ? nil : value.to_i / health_board_scale.fetch(field.header) : value }
 
       headers = ['Date', *health_boards, 'Grand Total']
       @@cases = CSV.read(File.join(DATA_DIR, OLD_HEALTH_BOARD_CASES_FILE), headers: headers, converters: [number_converter, date_converter])
@@ -144,7 +144,7 @@ class ScotlandCovid19Data
 
       CSV.read(File.join(DATA_DIR, HEALTH_BOARD_CASES_FILE), headers: headers, converters: [number_converter, date_converter])
          .[](1..-1) # Skip the header row
-         .reject { |record| record.values_at(*health_boards).all?(:nil?) }
+         .reject { |record| record.values_at(*health_boards).all?(:nil?) || record['Date'].nil? }
          .each do |record|
            record['Grand Total'] = record.values_at(*health_boards).reject(&:nil?).sum
            @@cases[record['Date']] = record.to_h
@@ -159,10 +159,11 @@ class ScotlandCovid19Data
         download(only: OLD_HEALTH_BOARD_DEATHS_FILE)
       end
 
-      date_converter = ->(value, field) { field.header.eql?('Date') ? Date.parse(value) : value }
+      date_converter = ->(value, field) { field.header.eql?('Date') ? (value.eql?('NA') ? nil : Date.parse(value)) : value }
       number_converter = ->(value, field) { !field.header.eql?('Date') ? value.eql?('X') ? nil : value.to_i / health_board_scale.fetch(field.header) : value }
 
       @@deaths = CSV.read(File.join(DATA_DIR, OLD_HEALTH_BOARD_DEATHS_FILE), headers: true, converters: [number_converter, date_converter])
+                    .reject { |record| record.values_at(*health_boards).all?(:nil?) || record['Date'].nil? }
                     .map { |record| [record['Date'], [*health_boards, 'Grand Total'].zip(record.values_at(*health_boards, 'Grand Total')).to_h] }
                     .to_h
       $logger.debug "Read deaths data for #{@@deaths.keys.sort.values_at(0, -1).map(&:to_s).join(' to ')}."
@@ -201,12 +202,13 @@ class ScotlandCovid19Data
         download(only: DECEASED_FILE)
       end
 
-      date_converter = ->(value, field) { field.header.eql?('Date') && value != 'Date' ? Date.parse(value) : value }
+      date_converter = ->(value, field) { field.header.eql?('Date') && value != 'Date' ? (value.eql?('NA') ? nil : Date.parse(value)) : value }
 
       headers = ['Date', 'Deceased']
 
       @@deceased = CSV.read(File.join(DATA_DIR, OLD_DECEASED_FILE), headers: headers, converters: [:numeric, date_converter])
                       .[](1..-1) # Skip the header row
+                      .reject { |record| record['Date'].nil? }
                       .map { |record| [record['Date'], record['Deceased']] }
                       .to_h
 
@@ -227,15 +229,17 @@ class ScotlandCovid19Data
 
       old_headers = ['Date', 'Conducted', 'Today Positive', 'Today Negative', 'Total Positive', 'Total Negative']
       headers = ['Date', 'Total Negative', 'Total Positive', 'Total']
-      date_converter = ->(value, field) { field.header.eql?('Date') && value != 'Date' ? Date.parse(value) : value }
+      date_converter = ->(value, field) { field.header.eql?('Date') && value != 'Date' ? (value.eql?('NA') ? nil : Date.parse(value)) : value }
 
       @@tests = CSV.read(File.join(DATA_DIR, OLD_TESTS_FILE), headers: old_headers, converters: [:numeric, date_converter])
                    .[](1..-1) # Skip the header row
+                   .reject { |record| record['Date'].nil? }
                    .map { |record| [record['Date'], record.to_h] }
                    .to_h
 
       tests = CSV.read(File.join(DATA_DIR, TESTS_FILE), headers: headers, converters: [:numeric, date_converter])
                  .[](1..-1) # Skip the header row
+                 .reject { |record| record['Date'].nil? }
       tests.each_cons(2) do |a, b|
         next if a['Total Positive'].nil? || b['Total Positive'].nil?
         next if a['Total Negative'].nil? || b['Total Negative'].nil?
