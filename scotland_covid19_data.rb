@@ -228,7 +228,7 @@ class ScotlandCovid19Data
       end
 
       old_headers = ['Date', 'Conducted', 'Today Positive', 'Today Negative', 'Total Positive', 'Total Negative']
-      headers = ['Date', 'Total Negative', 'Total Positive', 'Total']
+      headers = ['Date', 'Total Negative', 'Total Positive', 'Total', 'NHS Daily', 'NHS Cumulative', 'Regional Daily', 'Regional Cumulative']
       date_converter = ->(value, field) { field.header.eql?('Date') && value != 'Date' ? (value.eql?('NA') ? nil : Date.parse(value)) : value }
 
       @@tests = CSV.read(File.join(DATA_DIR, OLD_TESTS_FILE), headers: old_headers, converters: [:numeric, date_converter])
