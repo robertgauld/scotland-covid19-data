@@ -16,7 +16,7 @@ GEM
     nokogiri (1.10.9)
       mini_portile2 (~> 2.4.0)
     raabro (1.1.6)
-    rack (2.2.2)
+    rack (2.2.3)
     rollbar (2.24.0)
     rubyzip (2.3.0)
     rufus-scheduler (3.6.0)
