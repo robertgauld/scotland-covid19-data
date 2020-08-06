@@ -66,7 +66,7 @@ class GoogleMobilityData
     File.open(File.join(DATA_DIR, FILE), 'w') do |dst|
       IO.copy_stream src, dst
     end
-  
+
     @@accessed_at = Time.now
     @@current_cachebust = href.match(/\?cachebust=([0-9a-zA-Z]+)\Z/)[1]
   end
@@ -114,8 +114,11 @@ class GoogleMobilityData
         line = CSV.parse_line(line)
         next unless line[2].nil? || REGIONS['Scotland'].include?(line[2])
 
+        data = line[8..13].map { |v| v&.to_i }
+        date = Date.parse(line[7])
         key = line[2].nil? ? 'UK' : 'Scotland'
-        @@data[key][Date.parse(line[7])].push line[8..13].map { |v| v&.to_i }
+        @@data[key][date].push data
+        @@data[line[2]][date].push data
       end
 
       # @@data Hash: region/"UK" -> Array [date, values]

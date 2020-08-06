@@ -5,9 +5,10 @@ module Make
     PLOT_SIZE = '1280,800'
 
     def self.all(**options)
-      uk **options
-      scotland **options
-      health_boards **options
+      uk(**options)
+      scotland(**options)
+      health_boards(**options)
+      mobility_regions(**options)
       nil
     end
 
@@ -20,16 +21,16 @@ module Make
     end
 
     def self.scotland(**options)
-      scotland_daily_tests **options
-      scotland_cumulative_tests **options
-      scotland_cases_by_health_board **options
-      scotland_cases_by_health_board_smoothed **options
-      scotland_deaths_by_health_board **options
-      scotland_icus **options
-      scotland_icu_deceased **options
-      country_comparison 'Scotland', **options
-      mobility 'Scotland', **options
-      mobility_comparison 'Scotland', **options
+      scotland_daily_tests(**options)
+      scotland_cumulative_tests(**options)
+      scotland_cases_by_health_board(**options)
+      scotland_cases_by_health_board_smoothed(**options)
+      scotland_deaths_by_health_board(**options)
+      scotland_icus(**options)
+      scotland_icu_deceased(**options)
+      country_comparison('Scotland', **options)
+      mobility('Scotland', **options)
+      mobility_comparison('Scotland', **options)
     end
 
     def self.scotland_daily_tests(**options)
@@ -238,7 +239,7 @@ module Make
         }
       end
     end
-    
+
     def self.health_board_comparison(name, **options)
       fail "#{name.inspect} is not a known health board" unless ScotlandCovid19Data.health_boards.include?(name)
 
@@ -266,17 +267,17 @@ module Make
     end
 
     def self.uk(**options)
-      uk_total_cases_by_country **options
-      uk_total_deaths_by_country **options
-      uk_daily_cases_by_country **options
-      uk_daily_deaths_by_country **options
-      uk_daily_cases_by_country_smoothed **options
-      uk_daily_deaths_by_country_smoothed **options
-      country_comparison 'England', **options
-      country_comparison 'Scotland', **options
-      country_comparison 'Wales', **options
-      country_comparison 'Northern Ireland', **options
-      mobility 'UK', **options
+      uk_total_cases_by_country(**options)
+      uk_total_deaths_by_country(**options)
+      uk_daily_cases_by_country(**options)
+      uk_daily_deaths_by_country(**options)
+      uk_daily_cases_by_country_smoothed(**options)
+      uk_daily_deaths_by_country_smoothed(**options)
+      country_comparison('England', **options)
+      country_comparison('Scotland', **options)
+      country_comparison('Wales', **options)
+      country_comparison('Northern Ireland', **options)
+      mobility('UK', **options)
     end
 
     def self.uk_total_cases_by_country(**options)
@@ -589,6 +590,37 @@ module Make
             ds.title = title
             ds.linewidth = 2
           }
+        end
+      end
+    end
+
+    def self.mobility_regions(**options)
+      $logger.info 'Plotting regions mobility data.'
+      titles = ['Retail \& recreation', 'Grocery \& pharmacy', 'Parks', 'Transit stations', 'Workplaces', 'Residential']
+      data = Make::Data.mobility
+      regions = data.keys - [nil, 'UK', 'Scotland']
+
+      regions.each do |region|
+        region_data = data[region].transpose
+
+        basic_plot(**options, filename: "mobility_#{region.downcase.gsub(' ', '_')}.png", yrange: nil) do |plot|
+          plot.title "Mobility in #{region}"
+          plot.ylabel 'Usage compared to pre pandemic levels (%)'
+
+          plot.add_data Gnuplot::DataSet.new('0') { |ds|
+            ds.linewidth = 1
+            ds.title = ''
+            ds.linecolor = 'rgb "black"'
+          }
+
+          titles.each_with_index do |title, i|
+            plot.add_data Gnuplot::DataSet.new([region_data[0], region_data[i+1]]) { |ds|
+              ds.using = '1:2'
+              ds.with = 'line'
+              ds.title = title
+              ds.linewidth = 2
+            }
+          end
         end
       end
     end
