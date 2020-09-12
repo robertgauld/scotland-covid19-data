@@ -54,21 +54,15 @@ class GoogleMobilityData
     $logger.info (force ? 'Downloading all' : 'Downloading new') + ' data.'
     force ||= update_available?
 
-    index = Nokogiri::HTML.parse(
-      URI.open('https://www.google.com/covid19/mobility/'),
-      nil,
-      nil,
-      Nokogiri::XML::ParseOptions.new.nonet.noent.noblanks.noerror.nowarning
-    )
-
-    href = index.at_xpath("//a[@aria-label = 'Download global CSV']")['href']
-    src = URI(href).open
+    src = URI('https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv').open
     File.open(File.join(DATA_DIR, FILE), 'w') do |dst|
       IO.copy_stream src, dst
     end
 
     @@accessed_at = Time.now
-    @@current_cachebust = href.match(/\?cachebust=([0-9a-zA-Z]+)\Z/)[1]
+    @@current_cachebust = URI.open('https://www.google.com/covid19/mobility/')
+                             .read
+                             .match(/Reports created (\d{4}-\d{2}-\d{2})/)[1]
   end
 
   def self.update
@@ -79,15 +73,9 @@ class GoogleMobilityData
   def self.update_available?
     $logger.info 'Checking for updated data'
 
-    index = Nokogiri::HTML.parse(
-      URI.open('https://www.google.com/covid19/mobility/'),
-      nil,
-      nil,
-      Nokogiri::XML::ParseOptions.new.nonet.noent.noblanks.noerror.nowarning
-    )
-
-    href = index.at_xpath("//a[@aria-label = 'Download global CSV']")['href']
-    cachebust = href.match(/\?cachebust=([0-9a-zA-Z]+)\Z/)[1]
+    cachebust = URI.open('https://www.google.com/covid19/mobility/')
+                   .read
+                   .match(/Reports created (\d{4}-\d{2}-\d{2})/)[1]
 
     $logger.debug "Current data: #{@@current_cachebust}, " \
                   "Google data: #{cachebust}, " \
