@@ -36,7 +36,14 @@ end
 
 $update_job = $scheduler.schedule_every(3_600, overlap: false, timeout: 300) do
   Thread.current.thread_variable_set(:logger_label, 'Background update')
-  update
+
+  if ENV.key?('SCOUT_KEY')
+    ScoutApm::Rack.transaction('Background update', ENV) do
+      update
+    end
+  else
+    update
+  end
 end
 $update_job.trigger_off_schedule
 
@@ -64,6 +71,25 @@ end
 $logger.info 'Configuration complete'
 use Middleware::ErrorLogger
 use Rollbar::Middleware::Rack
+
+if ENV.key?('SCOUT_KEY')
+  ScoutApm::Rack.install!
+
+  class ScoutMiddleware
+    def initialize(app)
+      @app = app
+    end
+
+    def call(env)
+      ScoutApm::Rack.transaction("#{env['PATH_INFO'].to_s.length < 2 ? 'index-page' : env['PATH_INFO']}", env) do
+        @app.call(env)
+      end
+    end
+  end
+
+  use ScoutMiddleware
+end
+
 use Middleware::PageMaker
 
 use Rack::Static,
@@ -72,6 +98,7 @@ use Rack::Static,
   index: 'index.html',
   header_rules: [[:all, {'Cache-Control' => 'public, max-age=300'}]]
 
+$logger.info 'Running rack app'
 run lambda { |env|
   [
     404,
