@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 class GoogleMobilityData
-  FILE = 'Global_Mobility_Report.csv'
+  DATA_FILE = 'Global_Mobility_Report.csv'
+  VERSION_FILE = 'Global_Mobility_Report.version'
+
   REGIONS = {
     'Scotland' => %w{
       Aberdeen\ City
@@ -39,8 +41,6 @@ class GoogleMobilityData
     }
   }.freeze
 
-  @@current_cachebust = ''
-
   def self.data
     load unless defined?(@@data)
     @@data
@@ -55,14 +55,17 @@ class GoogleMobilityData
     force ||= update_available?
 
     src = URI('https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv').open
-    File.open(File.join(DATA_DIR, FILE), 'w') do |dst|
+    File.open(File.join(DATA_DIR, DATA_FILE), 'w') do |dst|
       IO.copy_stream src, dst
     end
 
     @@accessed_at = Time.now
-    @@current_cachebust = URI.open('https://www.google.com/covid19/mobility/')
-                             .read
-                             .match(/Reports created (\d{4}-\d{2}-\d{2})/)[1]
+    File.write(
+      File.join(DATA_DIR, VERSION_FILE),
+      URI.open('https://www.google.com/covid19/mobility/')
+         .read
+         .match(/Reports created (\d{4}-\d{2}-\d{2})/)[1]
+    )
   end
 
   def self.update
@@ -73,15 +76,21 @@ class GoogleMobilityData
   def self.update_available?
     $logger.info 'Checking for updated data'
 
-    cachebust = URI.open('https://www.google.com/covid19/mobility/')
-                   .read
-                   .match(/Reports created (\d{4}-\d{2}-\d{2})/)[1]
+    version = URI.open('https://www.google.com/covid19/mobility/')
+                 .read
+                 .match(/Reports created (\d{4}-\d{2}-\d{2})/)[1]
 
-    $logger.debug "Current data: #{@@current_cachebust}, " \
-                  "Google data: #{cachebust}, " \
-                  "Data is #{(cachebust == @@current_cachebust) ? 'current' : 'stale'}."
+    $logger.debug "Current data: #{current_version}, " \
+                  "Google data: #{version}, " \
+                  "Data is #{(version == current_version) ? 'current' : 'stale'}."
 
-    @@current_cachebust != cachebust
+    current_version != version
+  end
+
+  def self.current_version
+    return nil unless File.exist?(File.join(DATA_DIR, VERSION_FILE))
+
+    File.read(File.join(DATA_DIR, VERSION_FILE))
   end
 
   class << self
@@ -89,7 +98,7 @@ class GoogleMobilityData
 
     def load
       $logger.info 'Reading Google mobility data.'
-      unless File.exist?(File.join(DATA_DIR, FILE))
+      unless File.exist?(File.join(DATA_DIR, DATA_FILE))
         download
       end
 
@@ -97,7 +106,7 @@ class GoogleMobilityData
       @@data = Hash.new { |h1, k1| h1[k1] = Hash.new { |h2, k2| h2[k2] = Array.new } }
       # 0:country_code 1:country 2:region 3:sub_region, 4:metro_area, 5:iso_3166_2_code, 6:census_fips_code 7:date
       # 8:retail_and_recreation 9:grocery_and_pharmacy 10:parks 11:transit_stations 12:workplaces 13:residential
-      File.foreach(File.join(DATA_DIR, FILE)) do |line|
+      File.foreach(File.join(DATA_DIR, DATA_FILE)) do |line|
         next unless line.start_with?('GB,')
         line = CSV.parse_line(line)
         next unless line[2].nil? || REGIONS['Scotland'].include?(line[2])
