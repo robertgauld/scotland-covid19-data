@@ -78,17 +78,16 @@ module Make
       start_date = [uk.keys.min, country.keys.min].max
       finish_date = [uk.keys.max, country.keys.max].min
 
-
       (start_date..finish_date).map do |date|
-        do_cases = uk.dig(date, :confirmed_cases) && country.dig(date, :confirmed_cases)
-        do_deaths = uk.dig(date, :deaths) && country.dig(date, :deaths)
+        do_cases = uk.dig(date, :daily_cases) && country.dig(date, :daily_cases)
+        do_deaths = uk.dig(date, :daily_deaths) && country.dig(date, :daily_deaths)
 
         [
           date,
-          country.dig(date, :confirmed_cases),
-          country.dig(date, :deaths),
-          do_cases ? country.dig(date, :confirmed_cases) / uk.dig(date, :confirmed_cases) : nil,
-          do_deaths ? country.dig(date, :deaths) / uk.dig(date, :deaths) : nil
+          country.dig(date, :daily_cases),
+          country.dig(date, :daily_deaths),
+          do_cases ? country.dig(date, :daily_cases) / uk.dig(date, :daily_cases) : nil,
+          do_deaths ? country.dig(date, :daily_deaths) / uk.dig(date, :daily_deaths) : nil
         ]
       end
     end
@@ -102,23 +101,21 @@ module Make
       start_date = [england.keys.min, scotland.keys.min, wales.keys.min, northern_ireland.keys.min].min
       finish_date = [england.keys.max, scotland.keys.max, wales.keys.max, northern_ireland.keys.max].max
 
-      data = (start_date..finish_date).map do |date|
+      (start_date..finish_date).map do |date|
         [
           date,
-          england.dig(date, :confirmed_cases),
-          scotland.dig(date, :confirmed_cases),
-          wales.dig(date, :confirmed_cases),
-          northern_ireland.dig(date, :confirmed_cases),
-          uk.dig(date, :confirmed_cases),
+          england.dig(date, :cumulative_cases),
+          scotland.dig(date, :cumulative_cases),
+          wales.dig(date, :cumulative_cases),
+          northern_ireland.dig(date, :cumulative_cases),
+          uk.dig(date, :cumulative_cases),
+          england.dig(date, :daily_cases),
+          scotland.dig(date, :daily_cases),
+          wales.dig(date, :daily_cases),
+          northern_ireland.dig(date, :daily_cases),
+          uk.dig(date, :daily_cases)
         ]
       end
-      data[0].push nil, nil, nil, nil, nil
-      data.each_cons(2) do |yesterday, today|
-        (1..5).each do |i|
-          today.push yesterday[i] && today[i] ? today[i] - yesterday[i] : nil
-        end
-      end
-      data
     end
 
     def self.uk_deaths
@@ -130,23 +127,21 @@ module Make
       start_date = [england.keys.min, scotland.keys.min, wales.keys.min, northern_ireland.keys.min].min
       finish_date = [england.keys.max, scotland.keys.max, wales.keys.max, northern_ireland.keys.max].max
 
-      data = (start_date..finish_date).map do |date|
+      (start_date..finish_date).map do |date|
         [
           date,
-          england.dig(date, :deaths),
-          scotland.dig(date, :deaths),
-          wales.dig(date, :deaths),
-          northern_ireland.dig(date, :deaths),
-          uk.dig(date, :deaths),
+          england.dig(date, :cumulative_deaths),
+          scotland.dig(date, :cumulative_deaths),
+          wales.dig(date, :cumulative_deaths),
+          northern_ireland.dig(date, :cumulative_deaths),
+          uk.dig(date, :cumulative_deaths),
+          england.dig(date, :daily_deaths),
+          scotland.dig(date, :daily_deaths),
+          wales.dig(date, :daily_deaths),
+          northern_ireland.dig(date, :daily_deaths),
+          uk.dig(date, :daily_deaths)
         ]
       end
-      data[0].push nil, nil, nil, nil, nil
-      data.each_cons(2) do |yesterday, today|
-        (1..5).each do |i|
-          today.push yesterday[i] && today[i] ? today[i] - yesterday[i] : nil
-        end
-      end
-      data
     end
 
     def self.mobility

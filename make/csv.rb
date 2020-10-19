@@ -85,14 +85,14 @@ module Make
 
     def self.uk_cases(**options)
       $logger.info 'Writing cases CSV for UK.'
-      headers = ['Date', 'England Total', 'Scotland Total', 'Wales Total', 'Northern Total', 'UK Total', 'England Daily', 'Scotland Total', 'Wales Daily', 'Northern Daily', 'UK Daily']
+      headers = ['Date', 'England Total', 'Scotland Total', 'Wales Total', 'Northern Ireland Total', 'UK Total', 'England Daily', 'Scotland Total', 'Wales Daily', 'Northern Ireland Daily', 'UK Daily']
       data = Make::Data.uk_cases
       render headers, data, filename:  "uk_cases_per_#{NUMBERS_PER}.csv", **options
     end
 
     def self.uk_deaths(**options)
       $logger.info 'Writing deaths CSV for UK.'
-      headers = ['Date', 'England Total', 'Scotland Total', 'Wales Total', 'Northern Total', 'UK Total', 'England Daily', 'Scotland Total', 'Wales Daily', 'Northern Daily', 'UK Daily']
+      headers = ['Date', 'England Total', 'Scotland Total', 'Wales Total', 'Northern Ireland Total', 'UK Total', 'England Daily', 'Scotland Total', 'Wales Daily', 'Northern Ireland Daily', 'UK Daily']
       data = Make::Data.uk_deaths
       render headers, data, filename:  "uk_deaths_per_#{NUMBERS_PER}.csv", **options
     end

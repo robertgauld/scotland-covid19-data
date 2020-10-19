@@ -2,18 +2,14 @@
 
 class UkCovid19Data
   VERSION_FILE = 'UkCovid19Data.version'
+  CASES_FILE = 'covid-19-cases.csv'
+  DEATHS_FILE = 'covid-19-deaths.csv'
+
   ENGLAND_FILE = 'covid-19-totals-england.csv'
   NORTHERN_IRELAND_FILE = 'covid-19-totals-northern-ireland.csv'
   SCOTLAND_FILE = 'covid-19-totals-scotland.csv'
   WALES_FILE = 'covid-19-totals-wales.csv'
   UK_FILE = 'covid-19-totals-uk.csv'
-  FILES = [
-    ENGLAND_FILE,
-    NORTHERN_IRELAND_FILE,
-    SCOTLAND_FILE,
-    WALES_FILE,
-    UK_FILE,
-  ].freeze
 
   ENGLAND_SCALE = 54_000_000.to_f / NUMBERS_PER
   NORTHERN_IRELAND_SCALE = 2_000_000.to_f / NUMBERS_PER
@@ -46,28 +42,82 @@ class UkCovid19Data
     @@northern_ireland
   end
 
-  def self.download(force: false, only: nil)
-    $logger.info (force ? 'Downloading all' : 'Downloading new') + \
-                 (only ? " #{only.inspect} data." : ' data.')
-    force ||= update_available?
-    files = only ? [*only] : FILES
+  def self.cases
+    load_cases unless defined?(@@cases)
+    @@cases
+  end
 
-    files.each do |file|
-      url = "https://raw.githubusercontent.com/geeogi/covid-19-uk-data/master/data/#{file}"
-      file = File.join(DATA_DIR, file)
+  def self.deaths
+    load_deaths unless defined?(@@deaths)
+    @@deaths
+  end
 
-      if !File.exist?(file) || force
-        $logger.debug "#{url} => #{file}"
-        src = URI(url).open
-        File.open(file, 'w') do |dst|
-          IO.copy_stream src, dst
-        end
-      end
+  def self.download
+    $logger.info 'Downloading & Generating UK data.'
+
+    $logger.debug 'Downloading UK cases'
+    src = URI('https://api.coronavirus.data.gov.uk/v1/data?filters=areaType=nation&structure=%7B%22areaName%22:%22areaName%22,%22date%22:%22date%22,%22newCasesByPublishDate%22:%22newCasesByPublishDate%22,%22cumCasesByPublishDate%22:%22cumCasesByPublishDate%22%7D&format=csv').open
+    File.open(File.join(DATA_DIR, CASES_FILE), 'w') do |dst|
+      IO.copy_stream src, dst
     end
 
-    unless only
-      File.write(File.join(DATA_DIR, VERSION_FILE), github_latest_commit_sha)
+    $logger.debug 'Downloading UK deaths'
+    src = URI('https://api.coronavirus.data.gov.uk/v1/data?filters=areaType=nation&structure=%7B%22areaName%22:%22areaName%22,%22date%22:%22date%22,%22newDeaths28DaysByDeathDate%22:%22newDeaths28DaysByDeathDate%22,%22cumDeaths28DaysByDeathDate%22:%22cumDeaths28DaysByDeathDate%22%7D&format=csv').open
+    File.open(File.join(DATA_DIR, DEATHS_FILE), 'w') do |dst|
+      IO.copy_stream src, dst
     end
+
+    $logger.debug 'Generating UK and nation data'
+    data = Hash.new { |h, k| h[k] = Hash.new { |j, l| j[l] = [nil, 0, nil, 0] } }
+    # nation => data => [new_cases, cum_cases, new_deaths, cum_deaths]
+
+    File.readlines(File.join(DATA_DIR, CASES_FILE)).each do |line|
+      next if line.start_with? 'area'
+
+      line = line.strip.split(',') # nation, date, new, cum
+      data['UK'][line[1]][0] ||= 0
+      data['UK'][line[1]][0] += line[2].to_i
+      data['UK'][line[1]][1] += line[3].to_i
+      data[line[0]][line[1]][0] = line[2]&.to_i
+      data[line[0]][line[1]][1] = line[3]&.to_i
+    end
+
+    File.readlines(File.join(DATA_DIR, DEATHS_FILE)).each do |line|
+      next if line.strip.start_with? 'area'
+
+      line = line.split(',') # nation, date, new, cum
+      data['UK'][line[1]][2] ||= 0
+      data['UK'][line[1]][2] += line[2].to_i
+      data['UK'][line[1]][3] += line[3].to_i
+      data[line[0]][line[1]][2] = line[2]&.to_i
+      data[line[0]][line[1]][3] = line[3]&.to_i
+    end
+
+    $logger.debug 'Saving UK and nation data'
+    File.write(
+      File.join(DATA_DIR, UK_FILE),
+      "Date,Cases,Cumulative Cases,Deaths,Cumulative Deaths\n" + data['UK'].map { |k, v| [k, *v] }.sort_by(&:first).map { |a| a.join(',') }.join("\n") + "\n"
+    )
+    File.write(
+      File.join(DATA_DIR, ENGLAND_FILE),
+      "Date,Cases,Cumulative Cases,Deaths,Cumulative Deaths\n" + data['England'].map { |k, v| [k, *v] }.sort_by(&:first).map { |a| a.join(',') }.join("\n") + "\n"
+    )
+    File.write(
+      File.join(DATA_DIR, SCOTLAND_FILE),
+      "Date,Cases,Cumulative Cases,Deaths,Cumulative Deaths\n" + data['Scotland'].map { |k, v| [k, *v] }.sort_by(&:first).map { |a| a.join(',') }.join("\n") + "\n"
+    )
+    File.write(
+      File.join(DATA_DIR, WALES_FILE),
+      "Date,Cases,Cumulative Cases,Deaths,Cumulative Deaths\n" + data['Wales'].map { |k, v| [k, *v] }.sort_by(&:first).map { |a| a.join(',') }.join("\n") + "\n"
+    )
+    File.write(
+      File.join(DATA_DIR, NORTHERN_IRELAND_FILE),
+      "Date,Cases,Cumulative Cases,Deaths,Cumulative Deaths\n" + data['Northern Ireland'].map { |k, v| [k, *v] }.sort_by(&:first).map { |a| a.join(',') }.join("\n") + "\n"
+    )
+  end
+
+  def self.update_available?
+    true
   end
 
   def self.load
@@ -81,22 +131,6 @@ class UkCovid19Data
   def self.update
     download
     load
-  end
-
-  def self.update_available?
-    $logger.info 'Checking github for updated data'
-    github_data_sha = github_latest_commit_sha
-    $logger.debug "Current data: #{current_version}, " \
-                  "Github data: #{github_data_sha}, " \
-                  "Data is #{(github_data_sha == current_version) ? 'current' : 'stale'}."
-
-    current_version != github_data_sha
-  end
-
-  def self.current_version
-    return nil unless File.exist?(File.join(DATA_DIR, VERSION_FILE))
-
-    File.read(File.join(DATA_DIR, VERSION_FILE))
   end
 
   class << self
@@ -133,17 +167,14 @@ class UkCovid19Data
       CSV.read(File.join(DATA_DIR, file), headers: true, converters: [:numeric, date_converter]).each do |record|
         data[record['Date']] = {
           date: record['Date'],
-          tests: record['Tests'] ? record['Tests'] / scale : nil,
-          confirmed_cases: record['ConfirmedCases'] ? record['ConfirmedCases'] / scale : nil,
-          deaths: record['Deaths'] ? record['Deaths'] / scale : nil
+          daily_cases: record['Cases'] ? record['Cases'] / scale : nil,
+          daily_deaths: record['Deaths'] ? record['Deaths'] / scale : nil,
+          cumulative_cases: record['Cumulative Cases'] ? record['Cumulative Cases'] / scale : nil,
+          cumulative_deaths: record['Cumulative Deaths'] ? record['Cumulative Deaths'] / scale : nil
         }
       end
       $logger.debug "Read UK data for #{data.keys.sort.values_at(0, -1).map(&:to_s).join(' to ')}."    
       data
-    end
-
-    def github_latest_commit_sha
-      JSON.parse(URI('https://api.github.com/repos/geeogi/covid-19-uk-data/commits/master').read)['sha']
     end
   end
 end
