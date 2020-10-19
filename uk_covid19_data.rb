@@ -54,7 +54,7 @@ class UkCovid19Data
     files = only ? [*only] : FILES
 
     files.each do |file|
-      url = "https://raw.githubusercontent.com/tomwhite/covid-19-uk-data/master/data/#{file}"
+      url = "https://raw.githubusercontent.com/geeogi/covid-19-uk-data/master/data/#{file}"
       file = File.join(DATA_DIR, file)
 
       if !File.exist?(file) || force
@@ -136,7 +136,7 @@ class UkCovid19Data
     end
 
     def github_latest_commit_sha
-      JSON.parse(URI('https://api.github.com/repos/tomwhite/covid-19-uk-data/commits/master').read)['sha']
+      JSON.parse(URI('https://api.github.com/repos/geeogi/covid-19-uk-data/commits/master').read)['sha']
     end
   end
 end
