@@ -45,7 +45,7 @@ module Make
       tests = ScotlandCovid19Data.tests
 
       tests.values.sort_by { |record| record['Date'] }.map do |record|
-        record.values_at('Date', 'Today Positive', 'Today Negative', 'Total Positive', 'Total Negative')
+        record.values_at('Date', 'Today Positive', 'Today Negative', 'Today Positive Rate', 'Total Positive', 'Total Negative')
       end
     end
 

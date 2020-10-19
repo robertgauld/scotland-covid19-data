@@ -41,8 +41,13 @@ module Make
 
       basic_plot(**options, filename: 'scotland_daily_tests.png') do |plot|
         plot.title 'Scottish COVID-19 Daily Tests'
+        plot.set 'ylabel "Daily Test Count"'
 
-        plot.add_data Gnuplot::DataSet.new([data[0], data[5]]) { |ds|
+        plot.y2range '[0:]'
+        plot.y2tics 'nomirror'
+        plot.set 'y2label "Positive Test Rate (%)" offset -2'
+
+        plot.add_data Gnuplot::DataSet.new([data[0], data[6]]) { |ds|
           ds.using = '1:2'
           ds.with = 'filledcurve x1'
           ds.title = 'Positive'
@@ -53,25 +58,33 @@ module Make
           ds.with = 'filledcurve x1'
           ds.title = 'Negative'
         }
+
+        plot.add_data Gnuplot::DataSet.new([data[0], data[3]]) { |ds|
+          ds.axes = 'x1y2'
+          ds.using = '1:($2 * 100)'
+          ds.with = 'line'
+          ds.title = 'Positive Rate'
+          ds.linecolor = 'black'
+        }
       end
     end
 
     def self.scotland_cumulative_tests(**options)
       $logger.info 'Plotting cumulative test data for Scotland.'
       data = Make::Data.scotland_tests
-                       .map { |record| record.push record[3] + record[4] }
+                       .map { |record| record.push record[4] + record[5] }
                        .transpose
 
       basic_plot(**options, filename: 'scotland_cumulative_tests.png') do |plot|
         plot.title 'Scottish COVID-19 Cumulative Tests'
 
-        plot.add_data Gnuplot::DataSet.new([data[0], data[5]]) { |ds|
+        plot.add_data Gnuplot::DataSet.new([data[0], data[6]]) { |ds|
           ds.using = '1:2'
           ds.with = 'filledcurve x1'
           ds.title = 'Positive'
         }
 
-        plot.add_data Gnuplot::DataSet.new([data[0], data[4]]) { |ds|
+        plot.add_data Gnuplot::DataSet.new([data[0], data[5]]) { |ds|
           ds.using = '1:2'
           ds.with = 'filledcurve x1'
           ds.title = 'Negative'

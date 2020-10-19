@@ -59,7 +59,7 @@ module Make
 
     def self.scotland_tests(**options)
       $logger.info 'Writing tests CSV for Scotland.'
-      headers = ['Date', 'Positive', 'Negative', 'Cumulative Positive', 'Cumulative Negative']
+      headers = ['Date', 'Positive', 'Negative', 'Positive Rate', 'Cumulative Positive', 'Cumulative Negative']
       data = Make::Data.scotland_tests
       render headers, data, filename:  'scotland_tests.csv', **options
     end

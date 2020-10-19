@@ -245,6 +245,7 @@ class ScotlandCovid19Data
         next if a['Total Negative'].nil? || b['Total Negative'].nil?
         b['Today Positive'] = b['Total Positive'] - a['Total Positive']
         b['Today Negative'] = b['Total Negative'] - a['Total Negative']
+        b['Today Positive Rate'] = b['Today Positive'].to_f / (b['Today Positive'] + b['Today Negative'])
       end
       tests.reject { |record| record['Today Positive'].nil? || record['Today Negative'].nil? }
            .each { |record| @@tests[record['Date']] = record.to_h }
