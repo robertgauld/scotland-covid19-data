@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class ScotlandCovid19Data
+  VERSION_FILE = 'ScotlandCovid19Data.version'
   HEALTH_BOARD_CASES_FILE = 'COVID19 - Daily Management Information - Scottish Health Boards - Cumulative cases.csv'
   INTENSIVE_CARE_FILE = 'COVID19 - Daily Management Information - Scottish Health Boards - ICU patients.csv'
   DECEASED_FILE = 'COVID19 - Daily Management Information - Scotland - Deaths.csv'
@@ -17,8 +18,6 @@ class ScotlandCovid19Data
     DECEASED_FILE,
     TESTS_FILE
   ].freeze
-
-  @@current_git_sha = ''
 
   def self.health_boards
     load_health_boards unless defined?(@@health_boards)
@@ -79,7 +78,9 @@ class ScotlandCovid19Data
       end
     end
 
-    @@current_git_sha = github_latest_commit_sha unless only
+    unless only
+      File.write(File.join(DATA_DIR, VERSION_FILE), github_latest_commit_sha)
+    end
   end
 
   def self.load
@@ -99,11 +100,17 @@ class ScotlandCovid19Data
   def self.update_available?
     $logger.info 'Checking github for updated data'
     github_data_sha = github_latest_commit_sha
-    $logger.debug "Current data: #{@@current_git_sha}, " \
+    $logger.debug "Current data: #{current_version}, " \
                   "Github data: #{github_data_sha}, " \
-                  "Data is #{(github_data_sha == @@current_git_sha) ? 'current' : 'stale'}."
+                  "Data is #{(github_data_sha == current_version) ? 'current' : 'stale'}."
 
-    @@current_git_sha != github_data_sha
+    current_version != github_data_sha
+  end
+
+  def self.current_version
+    return nil unless File.exist?(File.join(DATA_DIR, VERSION_FILE))
+
+    File.read(File.join(DATA_DIR, VERSION_FILE))
   end
 
   class << self
