@@ -41,6 +41,7 @@ module Make
 
       basic_plot(**options, filename: 'scotland_daily_tests.png') do |plot|
         plot.title 'Scottish COVID-19 Daily Tests'
+        plot.ytics 'nomirror'
         plot.set 'ylabel "Daily Test Count"'
 
         plot.y2range '[0:]'
