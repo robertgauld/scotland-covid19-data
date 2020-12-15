@@ -4,12 +4,14 @@ A collection of charts visualising data around Covid-19 in Scotland, as displaye
 - [watty62's Scot_covid19](https://github.com/watty62/Scot_covid19)
 - [tomwhite's covid-19-uk-data](https://github.com/tomwhite/covid-19-uk-data)
 
-This simple app is designed to be hosted on Heroku, if you want to try at home it should be as easy as
-installing gnuplot and the gems in the bundle. It uses rack to present a webview,
-simply run 'bundle exec rackup' to start the server.
+If you want to try at home it should be as easy as installing gnuplot and the gems in the bundle.
+It uses rack to present a webview, simply run 'bundle exec rackup' to start the server.
+To get the data and generate the graphs run "bundle exec generate-site", to view them in your browser
+run "bundle exec rackup" and goto the url it gives you.
 
-Upon boot (and every hour thereafter) it will check for and pull the latest data then generate the CSV and
-plots to be served by Rack::Static. The index file is generated each time it's requested.
+A github action is used to generate the site after a push to master, at 7AM or at 7PM, the generated
+files are then committed and pushed to the published-site branch. At which point heroku picks it up
+and makes it available at scotland-covid19-data.herokuapp.com.
 
 The files are organised as such:
 - data/ - this is used to store the downloaded data
