@@ -45,13 +45,6 @@
           = succeed '.' do
             = GoogleMobilityData.accessed_at&.strftime('%Y-%m-%d')
     %p
-      On start up and every hour thereafter this site checks for new data and if 
-      new data is available it regenerates itself.
-      - if updating
-        %br
-        %span.highlight
-          The data is currently being updated.
-        %br
       - unless hide_zip_download_link
         %a{href: 'scotland-covid19-data.zip'} Download the current site and raw data.
 

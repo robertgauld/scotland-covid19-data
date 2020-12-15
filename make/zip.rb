@@ -15,7 +15,7 @@ module Make
         end
 
         zipfile.get_output_stream('public/index.html') do |file|
-          file.write Make::Html.index(updating: false, hide_zip_download_link: true)
+          file.write Make::Html.index(hide_zip_download_link: true, target: :return)
         end
 
         zipfile.get_output_stream('readme.txt') do |file|

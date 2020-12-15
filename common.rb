@@ -43,6 +43,7 @@ def update
   Make::Csv.all
   Make::Plot.all
   Make::Zip.all
+  Make::Html.index
 
   nil
 end

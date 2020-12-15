@@ -5,6 +5,3 @@ data/*
 !data/regional_deaths.csv
 !data/scot_test_positive_deceased.csv
 !data/scot_tests.csv
-public/*
-!public/.gitkeep
-!public/index.css

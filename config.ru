@@ -9,44 +9,6 @@ Rollbar.configure do |config|
   config.use_thread
   config.disable_rack_monkey_patch = true
 end
-
-begin
-#  update
-rescue StandardError => e
-  Rollbar.error e
-  raise e
-end
-
-$logger.info 'Starting Rufus Scheduler'
-$scheduler = Rufus::Scheduler.new
-
-def $scheduler.on_error(job, error)
-  $logger.error "Error in Rufus Job\n" \
-                "Job: #{job.class} #{job.original.inspect} #{job.opts.inspect}\n" \
-                "Error: #{error}\n#{error.backtrace.join("\n")}"
-
-  Rollbar.error(
-    error,
-    job_details: "#{job.class} #{job.original.inspect} #{job.opts.inspect}",
-    job: job,
-    scheduler: $scheduler,
-    env: ENV
-  )
-end
-
-$update_job = $scheduler.schedule_every(3_600, overlap: false, timeout: 300) do
-  Thread.current.thread_variable_set(:logger_label, 'Background update')
-
-  if ENV.key?('SCOUT_KEY')
-    ScoutApm::Rack.transaction('Background update', ENV) do
-      update
-    end
-  else
-    update
-  end
-end
-$update_job.trigger_off_schedule
-
 class Rack::CommonLogger
   def log(env, status, header, began_at)
     length = extract_content_length(header)
@@ -90,8 +52,6 @@ if ENV.key?('SCOUT_KEY')
   use ScoutMiddleware
 end
 
-use Middleware::PageMaker
-
 use Rack::Static,
   urls: ['/'],
   root: 'public',
@@ -99,10 +59,10 @@ use Rack::Static,
   header_rules: [[:all, {'Cache-Control' => 'public, max-age=300'}]]
 
 $logger.info 'Running rack app'
-run lambda { |env|
+run lambda { |_env|
   [
     404,
-    {'Content-Type'  => 'text/plain'},
+    {'Content-Type' => 'text/plain'},
     ['Not found!']
   ]
 }

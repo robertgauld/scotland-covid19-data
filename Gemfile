@@ -8,6 +8,5 @@ gem 'nokogiri', '~> 1.10.9'
 gem 'rack', '~> 2.2', '>= 2.2.3'
 gem 'rollbar', '~> 2.24'
 gem 'rubyzip', '~> 2.3', require: 'zip'
-gem 'rufus-scheduler', '~> 3.6'
 gem 'scout_apm', '~> 2.6', require: ENV.key?('SCOUT_KEY')
 gem 'zeitwerk', '~> 2.3'
