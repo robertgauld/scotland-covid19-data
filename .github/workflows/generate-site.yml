@@ -25,10 +25,17 @@ jobs:
     - name: Build site
       run: bundle exec generate-site
 
-    - name: Commit Changes
-      uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        commit_message: "Build site"
-        branch: "published-site"
-        commit_options: '--no-verify'
-        file_pattern: public
+    - name: Configure git
+      run: git config user.email "$GITHUB_ACTOR@users.noreply.github.com" &&
+           git config user.name "$GITHUB_ACTOR" &&
+           git fetch
+
+    - name: Commit generated site
+      run: mv public temp &&
+           git checkout published-site &&
+           mv -f temp/* public/ &&
+           git add public &&
+           git commit -m "Build site ($(date))"
+
+    - name: Push to published-site branch ready for Heroku to deploy
+      run: git push --set-upstream origin HEAD:published-site
