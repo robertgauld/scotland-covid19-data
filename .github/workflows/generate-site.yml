@@ -17,7 +17,9 @@ jobs:
       uses: ruby/setup-ruby@v1
 
     - name: Install gnuplot
-      run: sudo apt-get -y install libsm6 libice6 gnuplot
+      run: |
+        sudo apt-get update
+        sudo apt-get -y install libsm6 libice6 gnuplot
 
     - name: Install gems
       run: bundle install
