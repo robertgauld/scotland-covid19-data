@@ -104,15 +104,15 @@ class GoogleMobilityData
 
       # @@data Hash: region/"UK" -> date -> Array of array of values
       @@data = Hash.new { |h1, k1| h1[k1] = Hash.new { |h2, k2| h2[k2] = Array.new } }
-      # 0:country_code 1:country 2:region 3:sub_region, 4:metro_area, 5:iso_3166_2_code, 6:census_fips_code 7:date
-      # 8:retail_and_recreation 9:grocery_and_pharmacy 10:parks 11:transit_stations 12:workplaces 13:residential
+      # 0:country_code 1:country 2:region 3:sub_region, 4:metro_area, 5:iso_3166_2_code, 6:census_fips_code 7:place_id 8:date
+      # 9:retail_and_recreation 10:grocery_and_pharmacy 11:parks 12:transit_stations 13:workplaces 14:residential
       File.foreach(File.join(DATA_DIR, DATA_FILE)) do |line|
         next unless line.start_with?('GB,')
         line = CSV.parse_line(line)
         next unless line[2].nil? || REGIONS['Scotland'].include?(line[2])
 
-        data = line[8..13].map { |v| v&.to_i }
-        date = Date.parse(line[7])
+        data = line[9..14].map { |v| v&.to_i }
+        date = Date.parse(line[8])
         key = line[2].nil? ? 'UK' : 'Scotland'
         @@data[key][date].push data
         @@data[line[2]][date].push data
