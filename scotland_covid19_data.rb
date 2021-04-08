@@ -3,7 +3,7 @@
 class ScotlandCovid19Data
   VERSION_FILE = 'ScotlandCovid19Data.version'
   HEALTH_BOARD_CASES_FILE = 'COVID19 - Daily Management Information - Scottish Health Boards - Cumulative cases.csv'
-  INTENSIVE_CARE_FILE = 'COVID19 - Daily Management Information - Scottish Health Boards - ICU patients.csv'
+  INTENSIVE_CARE_FILE = 'COVID19 - Daily Management Information - Scottish Health Boards - ICU patients - Confirmed.csv'
   DECEASED_FILE = 'COVID19 - Daily Management Information - Scotland - Deaths.csv'
   TESTS_FILE = 'COVID19 - Daily Management Information - Scotland - Testing.csv'
   HEALTH_BOARD_POPULATIONS_FILE = 'HB_Populations.csv'

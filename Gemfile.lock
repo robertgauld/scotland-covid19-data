@@ -2,7 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     ast (2.4.2)
-    awesome_print (1.8.0)
+    awesome_print (1.9.2)
     gnuplot (2.6.2)
     haml (5.2.1)
       temple (>= 0.8.0)
@@ -10,7 +10,7 @@ GEM
     mini_portile2 (2.4.0)
     nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
-    parser (3.0.0.0)
+    parser (3.0.1.0)
       ast (~> 2.4.1)
     rack (2.2.3)
     rollbar (2.27.1)
@@ -36,7 +36,7 @@ DEPENDENCIES
   zeitwerk (~> 2.3)
 
 RUBY VERSION
-   ruby 2.7.2p137
+   ruby 3.0.1p64
 
 BUNDLED WITH
-   2.1.4
+   2.2.15
