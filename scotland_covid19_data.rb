@@ -66,7 +66,7 @@ class ScotlandCovid19Data
     files = only ? [*only] : DOWNLOAD_FILES
 
     files.each do |file|
-      url = "https://raw.githubusercontent.com/DataScienceScotland/COVID-19-Management-Information/master/#{file.gsub(' ', '%20')}"
+      url = "https://raw.githubusercontent.com/DataScienceScotland/COVID-19-Management-Information/master/export/old-file-structure/#{file.gsub(' ', '%20')}"
       file = File.join(DATA_DIR, file)
 
       if !File.exist?(file) || force
@@ -225,7 +225,7 @@ class ScotlandCovid19Data
          .each { |record| @@deceased[record['Date']] = record['Deceased'] }
 
 
-      $logger.debug "Read deceased data for #{@@deceased.keys.sort.values_at(0, -1).map(&:to_s).join(' to ')}."    
+      $logger.debug "Read deceased data for #{@@deceased.keys.sort.values_at(0, -1).map(&:to_s).join(' to ')}."
     end
 
     def load_tests
@@ -257,7 +257,7 @@ class ScotlandCovid19Data
       tests.reject { |record| record['Today Positive'].nil? || record['Today Negative'].nil? }
            .each { |record| @@tests[record['Date']] = record.to_h }
 
-      $logger.debug "Read tests data for #{@@tests.keys.sort.values_at(0, -1).map(&:to_s).join(' to ')}."    
+      $logger.debug "Read tests data for #{@@tests.keys.sort.values_at(0, -1).map(&:to_s).join(' to ')}."
     end
 
     def github_latest_commit_sha
