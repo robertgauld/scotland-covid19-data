@@ -7,16 +7,16 @@ GEM
     haml (5.2.1)
       temple (>= 0.8.0)
       tilt
-    mini_portile2 (2.5.1)
-    nokogiri (1.11.6)
+    mini_portile2 (2.5.3)
+    nokogiri (1.11.7)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
-    parser (3.0.1.1)
+    parser (3.0.2.0)
       ast (~> 2.4.1)
     racc (1.5.2)
     rack (2.2.3)
     rollbar (2.27.1)
-    rubyzip (2.3.0)
+    rubyzip (2.3.2)
     scout_apm (2.6.10)
       parser
     temple (0.8.2)
@@ -38,7 +38,7 @@ DEPENDENCIES
   zeitwerk (~> 2.3)
 
 RUBY VERSION
-   ruby 3.0.1p64
+   ruby 3.0.2p107
 
 BUNDLED WITH
-   2.2.15
+   2.2.23
